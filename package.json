@@ -1,0 +1,16 @@
+{
+  "name": "@wave/core",
+  "version": "0.0.1",
+  "module": "index.ts",
+  "dependencies": {
+    "@wave/app-service": "file:../app-service",
+    "@wave/bus-rabbitmq": "file:../bus/rabbitmq"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "type": "module"
+}
