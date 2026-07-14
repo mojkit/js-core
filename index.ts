@@ -3,6 +3,9 @@ import { Bus } from "./bus";
 import { registerListeners } from "./bus/listeners";
 import type { ResolvedWaveConfig } from "./config/types";
 
+// Export configuration types
+export type { WaveConfig, ResolvedWaveConfig, DomainConfig } from "./config/types";
+
 // Export event publishing API
 export * from "./bus/events";
 
