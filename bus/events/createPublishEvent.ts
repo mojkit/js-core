@@ -6,7 +6,7 @@
  */
 
 import { randomUUID } from 'crypto';
-import type { WaveTransport } from '@wave/bus-rabbitmq';
+import type { WaveTransport } from '@mojkit/bus-rabbitmq';
 import type {
   PublishableEvent,
   WaveEventMeta,

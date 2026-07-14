@@ -1,4 +1,4 @@
-# Wave Core
+# Mojkit Core
 
 A powerful back-end framework for building distributed microservices using Domain-Driven Design (DDD) and Command Query Responsibility Segregation (CQRS) patterns. Services communicate asynchronously through RabbitMQ as the message bus.
 
@@ -22,12 +22,12 @@ bun install
 
 ### 1. Configure Your Application
 
-Create a `wave.config.ts` file:
+Create a `mojkit.config.ts` file:
 
 ```typescript
-import type { WaveConfig } from "@wave/core";
+import type { MojkitConfig } from "@mojkit/core";
 
-export default async function config(): Promise<WaveConfig> {
+export default async function config(): Promise<MojkitConfig> {
   return {
     domains: {
       "User.Auth": {
@@ -64,7 +64,7 @@ export default async function config(): Promise<WaveConfig> {
       port: 3000,
     },
     service: {
-      name: "my-wave-service",
+      name: "my-mojkit-service",
       environment: "development",
     },
   };
@@ -81,9 +81,9 @@ bun run index.ts
 
 ### Automatic Route Registration
 
-Wave automatically discovers and registers HTTP routes from your configuration:
+Mojkit automatically discovers and registers HTTP routes from your configuration:
 
-1. Server loads `wave.config.ts` at startup (configurable via `WAVE_CONFIG_PATH`)
+1. Server loads `mojkit.config.ts` at startup (configurable via `WAVE_CONFIG_PATH`)
 2. Iterates over all `domains` in the config
 3. Reads the `controllers` map for each domain
 4. Registers each `"METHOD /path"` key as a Fastify route
@@ -107,12 +107,12 @@ domains/
 
 ### Configuration System
 
-Wave provides a robust configuration system with multiple sources and clear precedence:
+Mojkit provides a robust configuration system with multiple sources and clear precedence:
 
 **Precedence Order** (highest to lowest):
 1. Environment Variables (prefixed with `WAVE_CONFIG_`)
 2. Programmatic Parameters
-3. Config File (`wave.config.ts`)
+3. Config File (`mojkit.config.ts`)
 4. Default Values
 
 **Example:**
@@ -139,9 +139,9 @@ Handlers receive a `publishEvent` function in their context for publishing domai
 **Class-Based Events (Recommended):**
 
 ```typescript
-import { WaveEvent, type HandlerContext } from "@wave/core";
+import { MojkitEvent, type HandlerContext } from "@mojkit/core";
 
-class OrderCreatedEvent extends WaveEvent {
+class OrderCreatedEvent extends MojkitEvent {
   constructor(payload: { orderId: string; amount: number }) {
     super("OrderCreatedEvent", payload);
   }
@@ -192,7 +192,7 @@ See [bus/handlers/README.md](bus/handlers/README.md) for detailed documentation.
 
 ### Cross-Instance Communication
 
-Wave supports true microservices architecture where multiple instances communicate via RabbitMQ:
+Mojkit supports true microservices architecture where multiple instances communicate via RabbitMQ:
 
 ```typescript
 // Instance A provides services
@@ -207,7 +207,7 @@ const configA = {
 };
 
 // Instance B consumes services
-const instanceB = new WaveInstance("InstanceB", {});
+const instanceB = new MojkitInstance("InstanceB", {});
 await instanceB.initialize();
 
 // Instance B calls Instance A's command via RabbitMQ
@@ -255,13 +255,13 @@ bun test __tests__/e2e/cross-instance.test.ts
 ├── examples/             # Usage examples
 ├── services/             # Core services
 ├── index.ts              # Application entry point
-├── wave.config.ts        # Wave configuration file
+├── mojkit.config.ts        # Mojkit configuration file
 └── README.md
 ```
 
 ## Environment Variables
 
-- `WAVE_CONFIG_PATH`: Custom path to wave.config.ts (default: `./wave.config.ts`)
+- `WAVE_CONFIG_PATH`: Custom path to mojkit.config.ts (default: `./mojkit.config.ts`)
 - `WAVE_CONFIG_SERVER_PORT`: Override server port
 - `WAVE_CONFIG_SERVER_HOST`: Override server host
 - `WAVE_CONFIG_SERVICE_NAME`: Override service name
@@ -298,4 +298,4 @@ bun test __tests__/e2e/cross-instance.test.ts
 
 ## License
 
-This project is part of the Wave framework.
+This project is part of the Mojkit framework.

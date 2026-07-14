@@ -2,7 +2,7 @@ import type { HandlerContext } from "../bus/listeners";
 
 /**
  * Function-based command handler.
- * 
+ *
  * @param message - The command message payload
  * @param context - Handler context including busMessage, app, and publishEvent
  */
@@ -21,7 +21,7 @@ export interface CommandHandlerClass {
 
 /**
  * Function-based query handler.
- * 
+ *
  * @param message - The query message payload
  * @param context - Handler context including busMessage, app, and publishEvent
  */
@@ -41,7 +41,7 @@ export interface QueryHandlerClass {
 
 /**
  * Function-based saga (event) handler.
- * 
+ *
  * @param message - The event message payload
  * @param context - Handler context including busMessage, app, and publishEvent
  */
@@ -98,7 +98,7 @@ export interface MessageBusConfig {
 }
 
 /**
- * Input configuration contract used by `wave.config.ts`.
+ * Input configuration contract used by `mojkit.config.ts`.
  *
  * The returned object drives startup behavior and runtime wiring. The
  * `domains` map is mandatory so the platform can discover and bootstrap each
@@ -154,7 +154,7 @@ export interface ResolvedWaveConfig {
  */
 export const RESOLVED_DEFAULTS: Omit<ResolvedWaveConfig, "domains"> = {
   service: {
-    name: "wave-service",
+    name: "mojkit-service",
     environment: "development",
   },
   messageBus: {},

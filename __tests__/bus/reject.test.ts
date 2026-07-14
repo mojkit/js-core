@@ -5,7 +5,7 @@ import {
   type RejectContext,
   type WaveErrorMeta,
 } from "../../bus/errors";
-import type { WaveTransport } from "@wave/bus-rabbitmq";
+import type { WaveTransport } from "@mojkit/bus-rabbitmq";
 
 // ============================================================================
 // Test Error Classes

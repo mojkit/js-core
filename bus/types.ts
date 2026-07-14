@@ -1,4 +1,4 @@
-import type { ExecutionContext } from "@wave/bus-rabbitmq";
+import type { ExecutionContext } from "@mojkit/bus-rabbitmq";
 import { AppDispatcher } from "../services/AppDispatcher";
 import type { PublishEventFunction } from "./events";
 import type { RejectFunction } from "./errors/createReject";

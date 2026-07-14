@@ -13,7 +13,7 @@ The `AppDispatcher` class provides a singleton pattern for managing the Wave app
 ### 1. Using getInstance() and getApp()
 
 ```typescript
-import { AppDispatcher } from "@wave/core/services/AppDispatcher";
+import { AppDispatcher } from "@mojkit/core/services/AppDispatcher";
 
 // Get the singleton instance
 const dispatcher = AppDispatcher.getInstance();
@@ -28,7 +28,7 @@ const result = await app.MyNamespace.myCommand({ data: "test" });
 ### 2. Using getAppDispatcher() Helper
 
 ```typescript
-import { getAppDispatcher } from "@wave/core/services/AppDispatcher";
+import { getAppDispatcher } from "@mojkit/core/services/AppDispatcher";
 
 // Get the app instance directly
 const app = getAppDispatcher().getApp();
@@ -40,7 +40,7 @@ const result = await app.MyNamespace.myCommand({ data: "test" });
 ### 3. Direct App Import (Recommended for most cases)
 
 ```typescript
-import { app } from "@wave/core/services/AppDispatcher";
+import { app } from "@mojkit/core/services/AppDispatcher";
 
 // Use the app directly
 const result = await app.MyNamespace.myCommand({ data: "test" });
@@ -51,9 +51,9 @@ const result = await app.MyNamespace.myCommand({ data: "test" });
 Before using the app, you must initialize the dispatcher:
 
 ```typescript
-import { AppDispatcher } from "@wave/core/services/AppDispatcher";
-import { Config } from "@wave/core/config";
-import { Bus } from "@wave/core/bus";
+import { AppDispatcher } from "@mojkit/core/services/AppDispatcher";
+import { Config } from "@mojkit/core/config";
+import { Bus } from "@mojkit/core/bus";
 
 // Load configuration
 await Config.getInstance().load();
@@ -67,7 +67,7 @@ await Bus.getInstance().initialize({
 AppDispatcher.initialize();
 
 // Now you can use the app
-import { app } from "@wave/core/services/AppDispatcher";
+import { app } from "@mojkit/core/services/AppDispatcher";
 const result = await app.MyNamespace.myCommand({ data: "test" });
 ```
 
@@ -83,7 +83,7 @@ const result = await app.MyNamespace.myCommand({ data: "test" });
 
 #### Instance Methods
 
-- `getApp()` - Get the configured app instance from @wave/app-service
+- `getApp()` - Get the configured app instance from @mojkit/app-service
 
 ### Exported Functions
 
@@ -91,14 +91,14 @@ const result = await app.MyNamespace.myCommand({ data: "test" });
 
 ### Exported Constants
 
-- `app` - The configured app instance (direct export from @wave/app-service)
+- `app` - The configured app instance (direct export from @mojkit/app-service)
 
 ## Examples
 
 ### Example 1: Basic Command Call
 
 ```typescript
-import { app } from "@wave/core/services/AppDispatcher";
+import { app } from "@mojkit/core/services/AppDispatcher";
 
 async function createUser(name: string, email: string) {
   const result = await app.UserManagement.Users.createUser({
@@ -112,7 +112,7 @@ async function createUser(name: string, email: string) {
 ### Example 2: Command with Aggregate ID
 
 ```typescript
-import { app } from "@wave/core/services/AppDispatcher";
+import { app } from "@mojkit/core/services/AppDispatcher";
 
 async function updateUser(userId: string, data: any) {
   const result = await app.UserManagement.Users(userId).updateUser(data);
@@ -123,7 +123,7 @@ async function updateUser(userId: string, data: any) {
 ### Example 3: Query Call
 
 ```typescript
-import { app } from "@wave/core/services/AppDispatcher";
+import { app } from "@mojkit/core/services/AppDispatcher";
 
 async function getActiveUsers() {
   const users = await app.UserManagement.Users.query
@@ -137,7 +137,7 @@ async function getActiveUsers() {
 ### Example 4: Using getApp() in a Service Class
 
 ```typescript
-import { getAppDispatcher } from "@wave/core/services/AppDispatcher";
+import { getAppDispatcher } from "@mojkit/core/services/AppDispatcher";
 
 class UserService {
   private app;
@@ -163,7 +163,7 @@ class UserService {
 
 ```typescript
 import { describe, it, beforeEach } from "bun:test";
-import { AppDispatcher } from "@wave/core/services/AppDispatcher";
+import { AppDispatcher } from "@mojkit/core/services/AppDispatcher";
 
 describe("My Tests", () => {
   beforeEach(() => {
@@ -190,10 +190,10 @@ If you were previously using the app directly, no changes are needed:
 
 ```typescript
 // Old way (still works)
-import { app } from "@wave/core/services/AppDispatcher";
+import { app } from "@mojkit/core/services/AppDispatcher";
 
 // New way (also works)
-import { getAppDispatcher } from "@wave/core/services/AppDispatcher";
+import { getAppDispatcher } from "@mojkit/core/services/AppDispatcher";
 const app = getAppDispatcher().getApp();
 ```
 

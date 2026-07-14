@@ -1,10 +1,10 @@
 {
-  "name": "@wave/core",
+  "name": "@mojkit/core",
   "version": "0.0.1",
   "module": "index.ts",
   "dependencies": {
-    "@wave/app-service": "file:../app-service",
-    "@wave/bus-rabbitmq": "file:../bus/rabbitmq"
+    "@mojkit/app-service": "file:../app-service",
+    "@mojkit/bus-rabbitmq": "file:../bus/rabbitmq"
   },
   "devDependencies": {
     "@types/bun": "latest"

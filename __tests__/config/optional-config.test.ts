@@ -24,27 +24,27 @@ describe("Optional Config Loading", () => {
     expect(config.domains).toBeDefined();
     expect(config.domains["TestNamespace"]).toBeDefined();
     expect(config.service).toBeDefined();
-    expect(config.service.name).toBe("wave-service");
+    expect(config.service.name).toBe("mojkit-service");
     expect(config.service.environment).toBe("development");
   });
 
   it("should load config with empty domains when no params or file", async () => {
     // Set a non-existent config path
-    process.env.WAVE_CONFIG_PATH = "/tmp/non-existent-wave-config.ts";
+    process.env.WAVE_CONFIG_PATH = "/tmp/non-existent-mojkit-config.ts";
 
     const config = await Config.getInstance().load();
 
     expect(config).toBeDefined();
     expect(config.domains).toBeDefined();
     expect(Object.keys(config.domains)).toHaveLength(0);
-    expect(config.service.name).toBe("wave-service");
+    expect(config.service.name).toBe("mojkit-service");
 
     // Clean up
     delete process.env.WAVE_CONFIG_PATH;
   });
 
   it("should merge params with defaults when no config file exists", async () => {
-    process.env.WAVE_CONFIG_PATH = "/tmp/non-existent-wave-config.ts";
+    process.env.WAVE_CONFIG_PATH = "/tmp/non-existent-mojkit-config.ts";
 
     const params: Partial<WaveConfig> = {
       domains: {
@@ -70,7 +70,7 @@ describe("Optional Config Loading", () => {
   });
 
   it("should handle multiple domains in params", async () => {
-    process.env.WAVE_CONFIG_PATH = "/tmp/non-existent-wave-config.ts";
+    process.env.WAVE_CONFIG_PATH = "/tmp/non-existent-mojkit-config.ts";
 
     const params: Partial<WaveConfig> = {
       domains: {
@@ -97,7 +97,7 @@ describe("Optional Config Loading", () => {
   });
 
   it("should cache resolved config", async () => {
-    process.env.WAVE_CONFIG_PATH = "/tmp/non-existent-wave-config.ts";
+    process.env.WAVE_CONFIG_PATH = "/tmp/non-existent-mojkit-config.ts";
 
     const params: Partial<WaveConfig> = {
       domains: {

@@ -32,7 +32,7 @@ async function withParameters() {
 // Example 3: Environment variables override everything
 async function withEnvVars() {
   console.log("\n=== With Environment Variables ===");
-  
+
   // Set environment variables
   process.env.WAVE_CONFIG_SERVER_PORT = "9000";
   process.env.WAVE_CONFIG_SERVER_HOST = "0.0.0.0";
@@ -54,13 +54,13 @@ async function withEnvVars() {
 // Example 4: Custom config file path
 async function customConfigPath() {
   console.log("\n=== Custom Config Path ===");
-  
+
   // Set custom config path via environment variable
-  process.env.WAVE_CONFIG_PATH = "./__tests__/wave.config.ts";
-  
+  process.env.WAVE_CONFIG_PATH = "./__tests__/mojkit.config.ts";
+
   // Reset singleton to reload from new path
   Config.reset();
-  
+
   const config = await Config.getInstance().load();
   console.log("Domains:", Object.keys(config.domains));
 }
@@ -68,15 +68,15 @@ async function customConfigPath() {
 // Example 5: Singleton behavior
 async function singletonBehavior() {
   console.log("\n=== Singleton Behavior ===");
-  
+
   const instance1 = Config.getInstance();
   const instance2 = Config.getInstance();
-  
+
   console.log("Same instance?", instance1 === instance2);
-  
+
   const config1 = await Config.getInstance().load();
   const config2 = await Config.getInstance().load();
-  
+
   console.log("Same config object (cached)?", config1 === config2);
 }
 

@@ -1,5 +1,5 @@
-import createBus from "@moj/bus-rabbitmq";
-import type { WaveTransport } from "@moj/bus-rabbitmq";
+import createBus from "@mojkit/bus-rabbitmq";
+import type { WaveTransport } from "@mojkit/bus-rabbitmq";
 import type { MessageBusConfig } from "../config/types.ts";
 export type { MessageBusConfig } from "../config/types.ts";
 
@@ -52,7 +52,7 @@ export class Bus {
     this.config = config;
 
     // Dynamically import to avoid loading the module during tests
-    // const { default: createBus } = await import("@moj/bus-rabbitmq");
+    // const { default: createBus } = await import("@mojkit/bus-rabbitmq");
     this.transport = createBus({
       url: config.url,
       prefetchCount: config.prefetchCount,

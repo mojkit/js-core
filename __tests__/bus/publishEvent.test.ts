@@ -5,7 +5,7 @@ import {
   type PublishEventContext,
   type WaveEventMeta,
 } from "../../bus/events";
-import type { WaveTransport } from "@wave/bus-rabbitmq";
+import type { WaveTransport } from "@mojkit/bus-rabbitmq";
 
 // ============================================================================
 // Test Event Classes
@@ -306,10 +306,10 @@ describe("createPublishEvent", () => {
 
     const event1 = new TestEvent({ id: "test-1", value: 1 });
     await publishEvent(event1);
-    
+
     // Small delay to ensure different timestamps
     await new Promise(resolve => setTimeout(resolve, 10));
-    
+
     const event2 = new TestEvent({ id: "test-2", value: 2 });
     await publishEvent(event2);
 

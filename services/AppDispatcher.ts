@@ -1,9 +1,9 @@
-import app, { setDispatcher, type DispatchObject } from "@wave/app-service";
+import app, { setDispatcher, type DispatchObject } from "@mojkit/app-service";
 import { Config } from "../config";
 import { Bus } from "../bus";
 
 /**
- * AppDispatcher class configures the dispatcher for @wave/app-service
+ * AppDispatcher class configures the dispatcher for @mojkit/app-service
  * and provides a configured app instance.
  */
 export class AppDispatcher {
@@ -38,8 +38,8 @@ export class AppDispatcher {
   /**
    * Get the configured app instance.
    * This provides access to the app proxy for making command and query calls.
-   * 
-   * @returns The app instance from @wave/app-service
+   *
+   * @returns The app instance from @mojkit/app-service
    */
   getApp() {
     return app;

@@ -219,7 +219,7 @@ async function callGetUserQuery(app: any, userId: string) {
 // ============================================================================
 
 /**
- * Example wave.config.ts showing how to register handlers with error handling.
+ * Example mojkit.config.ts showing how to register handlers with error handling.
  */
 export const exampleConfig = {
   domains: {

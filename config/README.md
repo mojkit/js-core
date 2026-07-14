@@ -35,7 +35,7 @@ The configuration generator provides sensible defaults for all optional fields:
     port: 3000,
   },
   service: {
-    name: "wave-service",
+    name: "mojkit-service",
     environment: "development",
   },
   messageBus: {},
@@ -49,7 +49,7 @@ These defaults are automatically applied when values are not specified in the co
 
 ### 1. Config File
 
-Create a `wave.config.ts` (or `wave.config.js`) file:
+Create a `mojkit.config.ts` (or `mojkit.config.js`) file:
 
 ```typescript
 import type { WaveConfig } from "./config/types";
@@ -73,11 +73,11 @@ export default async function config(): Promise<WaveConfig> {
 ```
 
 **Config File Location:**
-- Default: `wave.config.ts` in current working directory
+- Default: `mojkit.config.ts` in current working directory
 - Custom: Set `WAVE_CONFIG_PATH` environment variable
 
 ```bash
-export WAVE_CONFIG_PATH=/path/to/custom/wave.config.ts
+export WAVE_CONFIG_PATH=/path/to/custom/mojkit.config.ts
 ```
 
 ### 2. Programmatic Parameters
@@ -138,7 +138,7 @@ This means environment variables will always win, followed by parameters, then c
 ### Precedence Example
 
 ```typescript
-// wave.config.ts
+// mojkit.config.ts
 export default async function config() {
   return {
     domains: {},
@@ -162,7 +162,7 @@ const config = await getConfig({
 
 console.log(config.server?.port); // 9000 (env variable wins)
 console.log(config.server?.host); // "0.0.0.0" (default value used)
-console.log(config.service?.name); // "wave-service" (default)
+console.log(config.service?.name); // "mojkit-service" (default)
 console.log(config.service?.environment); // "development" (default)
 ```
 

@@ -6,7 +6,7 @@
  * publishing error events before throwing.
  */
 
-import type { WaveTransport } from '@wave/bus-rabbitmq';
+import type { WaveTransport } from '@mojkit/bus-rabbitmq';
 import type {
   RejectableError,
   WaveErrorMeta,

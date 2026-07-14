@@ -10,7 +10,7 @@ function uniqueConfigPath(): string {
   testCounter++;
   const dir = resolve(testConfigDir, `test_${testCounter}`);
   mkdirSync(dir, { recursive: true });
-  return resolve(dir, "wave.config.ts");
+  return resolve(dir, "mojkit.config.ts");
 }
 
 function writeConfig(path: string, content: string): void {
@@ -65,7 +65,7 @@ describe("Config", () => {
 
       expect(config.server?.host).toBe("0.0.0.0");
       expect(config.server?.port).toBe(7000);
-      expect(config.service?.name).toBe("wave-service");
+      expect(config.service?.name).toBe("mojkit-service");
       expect(config.service?.environment).toBe("development");
     });
 
@@ -270,7 +270,7 @@ describe("Config", () => {
 
   describe("Error handling", () => {
     it("should throw when config file does not exist", async () => {
-      process.env.WAVE_CONFIG_PATH = "/nonexistent/path/wave.config.ts";
+      process.env.WAVE_CONFIG_PATH = "/nonexistent/path/mojkit.config.ts";
       await expect(Config.getInstance().load()).rejects.toThrow();
     });
 

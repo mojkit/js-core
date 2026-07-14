@@ -82,13 +82,13 @@ function parseEnvConfig(): Partial<WaveConfig> {
 }
 
 /**
- * Load and execute the wave.config.ts or wave.config.js file.
+ * Load and execute the mojkit.config.ts or mojkit.config.js file.
  * Returns null if the file doesn't exist.
  */
 async function loadConfigFile(configPath: string): Promise<WaveConfig | null> {
   try {
     const absolutePath = resolve(configPath);
-    
+
     // Check if file exists
     if (!existsSync(absolutePath)) {
       return null;
@@ -164,7 +164,7 @@ export class Config {
     // Check if config path has changed
     const currentConfigPath =
       process.env.WAVE_CONFIG_PATH ||
-      resolve(process.cwd(), "wave.config.ts");
+      resolve(process.cwd(), "mojkit.config.ts");
 
     if (this.loadedConfigPath && this.loadedConfigPath !== currentConfigPath) {
       this.configPromise = null;
@@ -211,7 +211,7 @@ export class Config {
   private async loadConfigFile(): Promise<WaveConfig | null> {
     this.loadedConfigPath =
       process.env.WAVE_CONFIG_PATH ||
-      resolve(process.cwd(), "wave.config.ts");
+      resolve(process.cwd(), "mojkit.config.ts");
 
     return await loadConfigFile(this.loadedConfigPath);
   }

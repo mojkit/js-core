@@ -17,7 +17,7 @@ Every handler (command, query, saga) receives a `publishEvent` function in its c
 ### Class-Based Events (Recommended)
 
 ```typescript
-import { WaveEvent, type HandlerContext } from '@wave/core';
+import { WaveEvent, type HandlerContext } from '@mojkit/core';
 
 // Define your event
 class OrderCreatedEvent extends WaveEvent {
@@ -339,7 +339,7 @@ async function placeOrderCommand(payload: any, context: HandlerContext) {
 
 **Before:**
 ```typescript
-import { Bus } from '@wave/core';
+import { Bus } from '@mojkit/core';
 
 async function placeOrderCommand(payload: any) {
   const orderId = createOrder(payload);
@@ -358,7 +358,7 @@ async function placeOrderCommand(payload: any) {
 
 **After:**
 ```typescript
-import { WaveEvent, type HandlerContext } from '@wave/core';
+import { WaveEvent, type HandlerContext } from '@mojkit/core';
 
 class OrderCreatedEvent extends WaveEvent {
   constructor(payload: { orderId: string }) {

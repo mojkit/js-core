@@ -1,10 +1,10 @@
 import { Config } from "./config";
 import { Bus } from "./bus";
 import { registerListeners } from "./bus/listeners";
-import type { ResolvedWaveConfig } from "./config/types";
+import type { ResolvedMojkitConfig } from "./config/types";
 
 // Export configuration types
-export type { WaveConfig, ResolvedWaveConfig, DomainConfig } from "./config/types";
+export type { MojkitConfig, ResolvedMojkitConfig, DomainConfig } from "./config/types";
 
 // Export event publishing API
 export * from "./bus/events";
@@ -12,30 +12,30 @@ export * from "./bus/events";
 // Export error rejection API
 export * from "./bus/errors";
 
-export class Wave {
-  private static instance: Wave | null = null;
+export class Mojkit {
+  private static instance: Mojkit | null = null;
 
 
   private constructor() {}
 
-  static getInstance(): Wave {
-    if (!Wave.instance) {
-      Wave.instance = new Wave();
+  static getInstance(): Mojkit {
+    if (!Mojkit.instance) {
+      Mojkit.instance = new Mojkit();
     }
-    return Wave.instance;
+    return Mojkit.instance;
   }
 
   static async starat() {
     try {
-      const wave = Wave.getInstance();
-      await wave.initialize();
+      const mojkit = Mojkit.getInstance();
+      await mojkit.initialize();
     } catch (err) {
-      console.error("Failed to initialize Wave:", err);
+      console.error("Failed to initialize Mojkit:", err);
       process.exit(1);
     }
   }
 
-  get config(): ResolvedWaveConfig {
+  get config(): ResolvedMojkitConfig {
     return Config.getInstance().get();
   }
 
@@ -54,8 +54,8 @@ export class Wave {
   }
 
   static reset(): void {
-    Wave.instance = null;
+    Mojkit.instance = null;
   }
 }
 
-export default Wave;
+export default Mojkit;
