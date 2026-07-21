@@ -17,7 +17,7 @@ export interface MojkitErrorMeta {
   correlationId: string;
 
   /** Type of handler that rejected */
-  handlerType: 'command' | 'saga' | 'eventListener';
+  handlerType: 'command' | 'saga' | 'event';
 
   /** Name of the handler that rejected */
   handlerName: string;

@@ -17,7 +17,7 @@ export interface MojkitEventMeta {
   correlationId: string;
 
   /** Type of handler that published this event */
-  handlerType: 'command' | 'saga' | 'eventListener';
+  handlerType: 'command' | 'saga' | 'event';
 
   /** Name of the handler that published this event */
   handlerName: string;

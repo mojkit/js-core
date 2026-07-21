@@ -67,7 +67,7 @@ Every published event automatically includes a `_meta` field with:
 {
   namespace: string;        // e.g., "Order.Management"
   correlationId: string;    // e.g., "abc-123-def-456"
-  handlerType: 'command' | 'saga' | 'eventListener';
+  handlerType: 'command' | 'saga' | 'event';
   handlerName: string;      // e.g., "placeOrder"
   publishedAt: string;      // ISO timestamp
 }
@@ -429,7 +429,7 @@ type PublishEventFunction = (event: PublishableEvent) => Promise<void>;
 interface MojkitEventMeta {
   namespace: string;
   correlationId: string;
-  handlerType: 'command' | 'saga' | 'eventListener';
+  handlerType: 'command' | 'saga' | 'event';
   handlerName: string;
   publishedAt: string;
 }

@@ -240,11 +240,11 @@ describe("createReject", () => {
     expect(meta?.handlerName).toBe("testSaga");
   });
 
-  it("should handle eventListener handler type", async () => {
+  it("should handle event handler type", async () => {
     const listenerContext: RejectContext = {
       namespace: "Test.Domain",
       correlationId: "corr-123",
-      handlerType: "eventListener",
+      handlerType: "event",
       handlerName: "Order.OrderCreatedEvent",
     };
 
@@ -258,7 +258,7 @@ describe("createReject", () => {
     }
 
     const meta = error.getMeta();
-    expect(meta?.handlerType).toBe("eventListener");
+    expect(meta?.handlerType).toBe("event");
     expect(meta?.handlerName).toBe("Order.OrderCreatedEvent");
   });
 
@@ -458,7 +458,7 @@ describe("Error event structure", () => {
       {
         namespace: "Inventory.Management",
         correlationId: "saga-corr-456",
-        handlerType: "eventListener",
+        handlerType: "event",
         handlerName: "Order.OrderCreatedEvent",
       },
       mockBus
@@ -476,6 +476,6 @@ describe("Error event structure", () => {
 
     const call = sendEventMock.mock.calls[0][0];
     expect(call.name).toBe("Order.OrderCreatedEventErrorEvent");
-    expect(call.payload._meta.handlerType).toBe("eventListener");
+    expect(call.payload._meta.handlerType).toBe("event");
   });
 });

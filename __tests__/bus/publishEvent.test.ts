@@ -211,11 +211,11 @@ describe("createPublishEvent", () => {
     expect(meta?.handlerName).toBe("testSaga");
   });
 
-  it("should handle eventListener handler type", async () => {
+  it("should handle 'event' handler type", async () => {
     const listenerContext: PublishEventContext = {
       namespace: "Test.Domain",
       correlationId: "corr-123",
-      handlerType: "eventListener",
+      handlerType: "event",
       handlerName: "Order.OrderCreatedEvent",
     };
 
@@ -225,7 +225,7 @@ describe("createPublishEvent", () => {
     await publishEvent(event);
 
     const meta = event.getMeta();
-    expect(meta?.handlerType).toBe("eventListener");
+    expect(meta?.handlerType).toBe("event");
     expect(meta?.handlerName).toBe("Order.OrderCreatedEvent");
   });
 
@@ -364,7 +364,7 @@ describe("Integration with handlers", () => {
       {
         namespace: "Inventory.Management",
         correlationId: "saga-corr-456",
-        handlerType: "eventListener",
+        handlerType: "event",
         handlerName: "Order.OrderCreatedEvent",
       },
       mockBus
@@ -382,7 +382,7 @@ describe("Integration with handlers", () => {
 
     expect(sendEventMock).toHaveBeenCalledTimes(1);
     const call = sendEventMock.mock.calls[0][0];
-    expect(call.payload._meta.handlerType).toBe("eventListener");
+    expect(call.payload._meta.handlerType).toBe("event");
     expect(call.payload._meta.handlerName).toBe("Order.OrderCreatedEvent");
   });
 });

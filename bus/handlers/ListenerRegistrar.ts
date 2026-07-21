@@ -299,14 +299,14 @@ export class ListenerRegistrar {
 
           // Create publishEvent function bound to this handler context
           const publishEvent = createPublishEvent(
-            { namespace: domainNamespace, correlationId, handlerType: 'eventListener', handlerName: fullEventName },
+            { namespace: domainNamespace, correlationId, handlerType: 'event', handlerName: fullEventName },
             bus,
             rpcContext
           );
 
           // Create reject function bound to this handler context
           const reject = createReject(
-            { namespace: domainNamespace, correlationId, handlerType: 'eventListener', handlerName: fullEventName },
+            { namespace: domainNamespace, correlationId, handlerType: 'event', handlerName: fullEventName },
             bus,
             rpcContext
           );

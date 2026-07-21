@@ -28,7 +28,7 @@ export interface RejectContext {
   correlationId: string;
 
   /** Type of handler */
-  handlerType: 'command' | 'saga' | 'eventListener';
+  handlerType: 'command' | 'saga' | 'event';
 
   /** Name of the handler */
   handlerName: string;
