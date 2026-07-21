@@ -38,9 +38,9 @@ class InventoryReservedEvent extends MojkitEvent {
 class PaymentProcessedEvent extends MojkitEvent {
   constructor(
     payload: { orderId: string; amount: number; transactionId: string },
-    frontEndData?: { showNotification: boolean; message: string }
+    frontEndPayload?: { showNotification: boolean; message: string }
   ) {
-    super('PaymentProcessedEvent', payload, frontEndData);
+    super('PaymentProcessedEvent', payload, frontEndPayload);
   }
 }
 
@@ -107,7 +107,7 @@ async function cancelOrderCommand(
   // Publish domain event using plain object
   await context.publishEvent({
     name: 'OrderCancelledEvent',
-    data: {
+    payload: {
       orderId,
       reason,
       cancelledAt: new Date().toISOString(),
@@ -164,7 +164,7 @@ interface PaymentReceivedEventPayload {
 }
 
 /**
- * Saga that publishes an event with frontend-specific data.
+ * Saga that publishes an event with frontend-specific payload.
  */
 async function paymentReceivedSaga(
   payload: PaymentReceivedEventPayload,
@@ -208,7 +208,7 @@ async function getOrderQuery(
   // Optionally publish an analytics event
   await context.publishEvent({
     name: 'OrderViewedEvent',
-    data: { orderId, viewedAt: new Date().toISOString() },
+    payload: { orderId, viewedAt: new Date().toISOString() },
   });
 
   return order;
@@ -306,7 +306,7 @@ export const exampleConfig = {
  *    - Test event chaining in sagas
  *
  * 6. Frontend data
- *    - Use frontEndData for UI-specific information
+ *    - Use frontEndPayload for UI-specific information
  *    - Keep business logic in payload
  *    - Frontend can subscribe to events and show notifications
  *

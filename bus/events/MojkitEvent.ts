@@ -36,8 +36,8 @@ export interface MojkitEventOptions {
   /** Business payload of the event */
   payload: unknown;
 
-  /** Optional frontend-specific data */
-  frontEndData?: unknown;
+  /** Optional frontend-specific payload */
+  frontEndPayload?: unknown;
 
   /** Optional bus-level options (e.g., routing, priority) */
   busOptions?: Record<string, any>;
@@ -67,8 +67,8 @@ export abstract class MojkitEvent {
   /** Business payload */
   public readonly payload: unknown;
 
-  /** Optional frontend-specific data */
-  public readonly frontEndData?: unknown;
+  /** Optional frontend-specific payload */
+  public readonly frontEndPayload?: unknown;
 
   /** Optional bus-level options */
   public readonly busOptions?: Record<string, any>;
@@ -79,12 +79,12 @@ export abstract class MojkitEvent {
   constructor(
     eventName: string,
     payload: unknown,
-    frontEndData?: unknown,
+    frontEndPayload?: unknown,
     busOptions?: Record<string, any>
   ) {
     this.eventName = eventName;
     this.payload = payload;
-    this.frontEndData = frontEndData;
+    this.frontEndPayload = frontEndPayload;
     this.busOptions = busOptions;
   }
 
@@ -105,7 +105,7 @@ export abstract class MojkitEvent {
  * ```typescript
  * await publishEvent({
  *   name: 'OrderCancelledEvent',
- *   data: { orderId: '123', reason: 'customer request' }
+ *   payload: { orderId: '123', reason: 'customer request' }
  * });
  * ```
  */
@@ -114,10 +114,10 @@ export interface PlainMojkitEvent {
   name: string;
 
   /** Business payload */
-  data: unknown;
+  payload: unknown;
 
-  /** Optional frontend-specific data */
-  frontEndData?: unknown;
+  /** Optional frontend-specific payload */
+  frontEndPayload?: unknown;
 
   /** Optional bus-level options */
   busOptions?: Record<string, any>;
@@ -142,5 +142,5 @@ export function isMojkitEventInstance(event: PublishableEvent): event is MojkitE
  * Type guard to check if an event is a plain object.
  */
 export function isPlainMojkitEvent(event: PublishableEvent): event is PlainMojkitEvent {
-  return !isMojkitEventInstance(event) && 'name' in event && 'data' in event;
+  return !isMojkitEventInstance(event) && 'name' in event && 'payload' in event;
 }

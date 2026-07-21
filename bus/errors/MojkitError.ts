@@ -100,7 +100,7 @@ export class MojkitError extends SerializableError {
   public readonly data?: unknown;
 
   /** Optional frontend-specific data */
-  public readonly frontEndData?: unknown;
+  public readonly frontEndPayload?: unknown;
 
   /** Optional bus-level options */
   public readonly busOptions?: Record<string, any>;
@@ -112,13 +112,13 @@ export class MojkitError extends SerializableError {
     errorCode: string,
     message: string,
     data?: unknown,
-    frontEndData?: unknown,
+    frontEndPayload?: unknown,
     busOptions?: Record<string, any>
   ) {
     super(message, errorCode, typeof data === 'object' && data !== null ? data as Record<string, any> : { value: data });
     this.errorCode = errorCode;
     this.data = data;
-    this.frontEndData = frontEndData;
+    this.frontEndPayload = frontEndPayload;
     this.busOptions = busOptions;
   }
 
@@ -155,7 +155,7 @@ export interface PlainMojkitError {
   data?: unknown;
 
   /** Optional frontend-specific data */
-  frontEndData?: unknown;
+  frontEndPayload?: unknown;
 
   /** Optional bus-level options */
   busOptions?: Record<string, any>;

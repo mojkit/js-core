@@ -90,24 +90,24 @@ export function createPublishEvent(
     // Extract event name and payload based on event type
     let eventName: string;
     let payload: unknown;
-    let frontEndData: unknown | undefined;
+    let frontEndPayload: unknown | undefined;
     let busOptions: Record<string, any> | undefined;
 
     if (isMojkitEventInstance(event)) {
       // Class-based event
       eventName = event.eventName;
       payload = event.payload;
-      frontEndData = event.frontEndData;
+      frontEndPayload = event.frontEndPayload;
       busOptions = event.busOptions;
     } else if (isPlainMojkitEvent(event)) {
       // Plain object event
       eventName = event.name;
-      payload = event.data;
-      frontEndData = event.frontEndData;
+      payload = event.payload;
+      frontEndPayload = event.frontEndPayload;
       busOptions = event.busOptions;
     } else {
       throw new Error(
-        'Invalid event format. Event must be a MojkitEvent instance or a plain object with "name" and "data" fields.'
+        'Invalid event format. Event must be a MojkitEvent instance or a plain object with "name" and "payload" fields.'
       );
     }
 
@@ -151,7 +151,7 @@ export function createPublishEvent(
       payload: payloadWithMeta,
       context: {
         correlationId: context.correlationId,
-        ...(frontEndData ? { frontEndData } : {}),
+        ...(frontEndPayload ? { frontEndPayload } : {}),
       },
       ...(busOptions || {}),
     });

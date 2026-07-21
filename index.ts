@@ -19,7 +19,6 @@ export { app } from './services/AppDispatcher'
 export class Mojkit {
   private static instance: Mojkit | null = null;
 
-
   private constructor() {}
 
   static getInstance(): Mojkit {
@@ -29,10 +28,11 @@ export class Mojkit {
     return Mojkit.instance;
   }
 
-  static async start() {
+  static async start(): Promise<Mojkit> {
     try {
       const mojkit = Mojkit.getInstance();
       await mojkit.initialize();
+      return mojkit;
     } catch (err) {
       console.error("Failed to initialize Mojkit:", err);
       process.exit(1);

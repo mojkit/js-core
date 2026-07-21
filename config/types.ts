@@ -152,10 +152,11 @@ export interface ResolvedMojkitConfig {
 /**
  * Default values for required fields in ResolvedMojkitConfig.
  */
-export const RESOLVED_DEFAULTS: Omit<ResolvedMojkitConfig, "domains"> = {
+export const RESOLVED_DEFAULTS: ResolvedMojkitConfig = {
   service: {
     name: "mojkit-service",
     environment: "development",
   },
+  domains: {},
   messageBus: {},
 };

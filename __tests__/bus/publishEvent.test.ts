@@ -20,9 +20,9 @@ class TestEvent extends MojkitEvent {
 class TestEventWithFrontEndData extends MojkitEvent {
   constructor(
     payload: { id: string },
-    frontEndData: { message: string }
+    frontEndPayload: { message: string }
   ) {
-    super("TestEventWithFrontEndData", payload, frontEndData);
+    super("TestEventWithFrontEndData", payload, frontEndPayload);
   }
 }
 
@@ -45,13 +45,13 @@ describe("MojkitEvent", () => {
     expect(event._meta).toBeUndefined();
   });
 
-  it("should support frontEndData", () => {
+  it("should support frontEndPayload", () => {
     const event = new TestEventWithFrontEndData(
       { id: "test-1" },
       { message: "Hello" }
     );
 
-    expect(event.frontEndData).toEqual({ message: "Hello" });
+    expect(event.frontEndPayload).toEqual({ message: "Hello" });
   });
 
   it("should support busOptions", () => {
@@ -115,7 +115,7 @@ describe("createPublishEvent", () => {
 
     await publishEvent({
       name: "PlainEvent",
-      data: { id: "test-1", status: "active" },
+      payload: { id: "test-1", status: "active" },
     });
 
     expect(sendEventMock).toHaveBeenCalledTimes(1);
@@ -151,7 +151,7 @@ describe("createPublishEvent", () => {
     const publishEvent = createPublishEvent(context, mockBus);
     const event = {
       name: "PlainEvent",
-      data: { id: "test-1" },
+      payload: { id: "test-1" },
     };
 
     await publishEvent(event);
@@ -229,7 +229,7 @@ describe("createPublishEvent", () => {
     expect(meta?.handlerName).toBe("Order.OrderCreatedEvent");
   });
 
-  it("should include frontEndData in context", async () => {
+  it("should include frontEndPayload in context", async () => {
     const publishEvent = createPublishEvent(context, mockBus);
     const event = new TestEventWithFrontEndData(
       { id: "test-1" },
@@ -239,7 +239,7 @@ describe("createPublishEvent", () => {
     await publishEvent(event);
 
     const call = sendEventMock.mock.calls[0][0];
-    expect(call.context.frontEndData).toEqual({ message: "Hello" });
+    expect(call.context.frontEndPayload).toEqual({ message: "Hello" });
   });
 
   it("should merge busOptions into sendEvent call", async () => {
@@ -266,7 +266,7 @@ describe("createPublishEvent", () => {
     const publishEvent = createPublishEvent(context, mockBus);
 
     // Invalid event (missing 'name' or 'eventName')
-    const invalidEvent = { data: { id: "test-1" } } as any;
+    const invalidEvent = { value: { id: "test-1" } } as any;
 
     await expect(publishEvent(invalidEvent)).rejects.toThrow(
       "Invalid event format"
@@ -278,7 +278,7 @@ describe("createPublishEvent", () => {
 
     await publishEvent({
       name: "PrimitiveEvent",
-      data: "simple string",
+      payload: "simple string",
     });
 
     const call = sendEventMock.mock.calls[0][0];
@@ -374,7 +374,7 @@ describe("Integration with handlers", () => {
     const sagaHandler = async (payload: any) => {
       await publishEvent({
         name: "InventoryReservedEvent",
-        data: { orderId: payload.orderId, items: payload.items },
+        payload: { orderId: payload.orderId, items: payload.items },
       });
     };
 

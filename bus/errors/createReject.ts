@@ -79,7 +79,7 @@ export function createReject(
     let errorCode: string;
     let message: string;
     let data: unknown | undefined;
-    let frontEndData: unknown | undefined;
+    let frontEndPayload: unknown | undefined;
     let busOptions: Record<string, any> | undefined;
 
     if (isMojkitErrorInstance(error)) {
@@ -87,14 +87,14 @@ export function createReject(
       errorCode = error.errorCode;
       message = error.message;
       data = error.data;
-      frontEndData = error.frontEndData;
+      frontEndPayload = error.frontEndPayload;
       busOptions = error.busOptions;
     } else if (isPlainMojkitError(error)) {
       // Plain object error
       errorCode = error.errorCode;
       message = error.message;
       data = error.data;
-      frontEndData = error.frontEndData;
+      frontEndPayload = error.frontEndPayload;
       busOptions = error.busOptions;
     } else {
       throw new Error(
@@ -152,7 +152,7 @@ export function createReject(
         payload: errorPayload,
         context: {
           correlationId: context.correlationId,
-          ...(frontEndData ? { frontEndData } : {}),
+          ...(frontEndPayload ? { frontEndPayload } : {}),
         },
         ...(busOptions || {}),
       });
@@ -168,7 +168,7 @@ export function createReject(
       // Wrap plain object in MojkitError for consistent error handling
       const wrappedError = new (class extends MojkitError {
         constructor() {
-          super(errorCode, message, data, frontEndData, busOptions);
+          super(errorCode, message, data, frontEndPayload, busOptions);
           this._meta = meta;
         }
       })();

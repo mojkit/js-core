@@ -52,7 +52,7 @@ async function cancelOrderCommand(
   
   await context.publishEvent({
     name: 'OrderCancelledEvent',
-    data: { orderId: payload.orderId, reason: 'customer request' }
+    payload: { orderId: payload.orderId, reason: 'customer request' }
   });
   
   return { success: true };
@@ -91,7 +91,7 @@ For plain objects, access `_meta` directly:
 ```typescript
 const event = {
   name: 'OrderCancelledEvent',
-  data: { orderId: '123' }
+  payload: { orderId: '123' }
 };
 
 await context.publishEvent(event);
@@ -148,9 +148,9 @@ Include UI-specific data that doesn't belong in the business payload:
 class PaymentProcessedEvent extends MojkitEvent {
   constructor(
     payload: { orderId: string; amount: number },
-    frontEndData?: { showNotification: boolean; message: string }
+    frontEndPayload?: { showNotification: boolean; message: string }
   ) {
-    super('PaymentProcessedEvent', payload, frontEndData);
+    super('PaymentProcessedEvent', payload, frontEndPayload);
   }
 }
 
@@ -234,7 +234,7 @@ async function getOrderQuery(
   // Optional: publish analytics event
   await context.publishEvent({
     name: 'OrderViewedEvent',
-    data: { orderId: payload.orderId, viewedAt: new Date().toISOString() }
+    payload: { orderId: payload.orderId, viewedAt: new Date().toISOString() }
   });
   
   return order;
@@ -333,57 +333,6 @@ async function placeOrderCommand(payload: any, context: HandlerContext) {
 }
 ```
 
-## Migration Guide
-
-### From Direct Bus Access
-
-**Before:**
-```typescript
-import { Bus } from '@mojkit/core';
-
-async function placeOrderCommand(payload: any) {
-  const orderId = createOrder(payload);
-  
-  const bus = Bus.getInstance().get();
-  await bus.sendEvent({
-    kind: 'event',
-    namespace: 'Order.Management',
-    name: 'OrderCreatedEvent',
-    payload: { orderId }
-  });
-  
-  return { orderId };
-}
-```
-
-**After:**
-```typescript
-import { MojkitEvent, type HandlerContext } from '@mojkit/core';
-
-class OrderCreatedEvent extends MojkitEvent {
-  constructor(payload: { orderId: string }) {
-    super('OrderCreatedEvent', payload);
-  }
-}
-
-async function placeOrderCommand(
-  payload: any,
-  context: HandlerContext
-) {
-  const orderId = createOrder(payload);
-  
-  await context.publishEvent(new OrderCreatedEvent({ orderId }));
-  
-  return { orderId };
-}
-```
-
-**Benefits:**
-- No need to import or access Bus singleton
-- Metadata automatically populated
-- Type-safe event definitions
-- Easier to test (mock `publishEvent` instead of Bus)
-
 ## API Reference
 
 ### `MojkitEvent` (abstract class)
@@ -395,7 +344,7 @@ Base class for domain events.
 constructor(
   eventName: string,
   payload: unknown,
-  frontEndData?: unknown,
+  frontEndPayload?: unknown,
   busOptions?: Record<string, any>
 )
 ```
@@ -410,8 +359,8 @@ Plain object event format.
 ```typescript
 interface PlainMojkitEvent {
   name: string;
-  data: unknown;
-  frontEndData?: unknown;
+  payload: unknown;
+  frontEndPayload?: unknown;
   busOptions?: Record<string, any>;
   _meta?: MojkitEventMeta;
 }

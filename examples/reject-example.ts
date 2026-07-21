@@ -48,13 +48,13 @@ class PaymentDeclinedError extends MojkitError {
 class ValidationError extends MojkitError {
   constructor(
     data: { field: string; value: any; constraint: string },
-    frontEndData?: { showToUser: boolean; userMessage: string }
+    frontEndPayload?: { showToUser: boolean; userMessage: string }
   ) {
     super(
       'VALIDATION_ERROR',
       `Validation failed for field: ${data.field}`,
       data,
-      frontEndData
+      frontEndPayload
     );
   }
 }
@@ -456,7 +456,7 @@ export const exampleConfig = {
  * 2. Use factory functions for common errors
  *    - Convenient and consistent
  *    - Easy to reuse across handlers
- *    - Can include default frontEndData
+ *    - Can include default frontEndPayload
  *
  * 3. Use plain object errors for simplicity
  *    - Quick prototyping
@@ -490,7 +490,7 @@ export const exampleConfig = {
  *    - Remember: reject always throws
  *
  * 9. Frontend data
- *    - Use frontEndData for UI-specific information
+ *    - Use frontEndPayload for UI-specific information
  *    - Keep business logic in data field
  *    - Frontend can subscribe to error events and show notifications
  *

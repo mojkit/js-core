@@ -20,9 +20,9 @@ class TestError extends MojkitError {
 class TestErrorWithFrontEndData extends MojkitError {
   constructor(
     data: { id: string },
-    frontEndData: { message: string }
+    frontEndPayload: { message: string }
   ) {
-    super("TEST_ERROR_WITH_FRONTEND", "Test error with frontend data", data, frontEndData);
+    super("TEST_ERROR_WITH_FRONTEND", "Test error with frontend data", data, frontEndPayload);
   }
 }
 
@@ -53,13 +53,13 @@ describe("MojkitError", () => {
     expect(error._meta).toBeUndefined();
   });
 
-  it("should support frontEndData", () => {
+  it("should support frontEndPayload", () => {
     const error = new TestErrorWithFrontEndData(
       { id: "test-1" },
       { message: "Hello" }
     );
 
-    expect(error.frontEndData).toEqual({ message: "Hello" });
+    expect(error.frontEndPayload).toEqual({ message: "Hello" });
   });
 
   it("should support busOptions", () => {
@@ -262,7 +262,7 @@ describe("createReject", () => {
     expect(meta?.handlerName).toBe("Order.OrderCreatedEvent");
   });
 
-  it("should include frontEndData in context", async () => {
+  it("should include frontEndPayload in context", async () => {
     const reject = createReject(context, mockBus);
     const error = new TestErrorWithFrontEndData(
       { id: "test-1" },
@@ -276,7 +276,7 @@ describe("createReject", () => {
     }
 
     const call = sendEventMock.mock.calls[0][0];
-    expect(call.context.frontEndData).toEqual({ message: "Hello" });
+    expect(call.context.frontEndPayload).toEqual({ message: "Hello" });
   });
 
   it("should merge busOptions into sendEvent call", async () => {
