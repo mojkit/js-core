@@ -1,7 +1,7 @@
-import Wave from "..";
+import Mojkit from "..";
 
 async function start() {
-  await Wave.starat();
+  await Mojkit.start();
 }
 
 start();

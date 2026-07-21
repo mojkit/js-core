@@ -47,7 +47,7 @@ Orchestrates the registration of all bus listeners based on configuration.
 
 ```typescript
 import { registerListeners } from "../listeners";
-import type { ResolvedWaveConfig } from "../../config/types";
+import type { ResolvedMojkitConfig } from "../../config/types";
 
 // Register all listeners
 await registerListeners(config);

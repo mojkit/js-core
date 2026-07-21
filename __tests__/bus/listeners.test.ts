@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import type { ResolvedWaveConfig } from "../../config/types";
+import type { ResolvedMojkitConfig } from "../../config/types";
 
 // We can't fully test registerListeners without mocking the bus
 // But we can test the parseEventName logic by extracting it
@@ -50,7 +50,7 @@ describe("Bus Listeners", () => {
 
   describe("Configuration structure", () => {
     it("should have correct domain config structure", () => {
-      const config: ResolvedWaveConfig = {
+      const config: ResolvedMojkitConfig = {
         domains: {
           "User.Auth": {
             commands: {

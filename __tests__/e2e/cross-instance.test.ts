@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterEach } from "bun:test";
-import type { WaveConfig } from "../../config/types.ts";
+import type { MojkitConfig } from "../../config/types.ts";
 import { Config } from "../../config";
 import { Bus } from "../../bus";
 import { registerListeners } from "../../bus/listeners";
@@ -8,7 +8,7 @@ import { AppDispatcher } from "../../services/AppDispatcher";
 /**
  * E2E tests for cross-instance command and query calls.
  *
- * These tests simulate multiple Wave instances communicating with each other
+ * These tests simulate multiple Mojkit instances communicating with each other
  * through commands and queries, similar to microservices architecture.
  *
  * Prerequisites:
@@ -19,29 +19,29 @@ import { AppDispatcher } from "../../services/AppDispatcher";
 const RABBITMQ_URL = process.env.RABBITMQ_URL ?? "amqp://guest:guest@localhost:5672";
 
 /**
- * Helper class to create and manage an independent Wave instance.
+ * Helper class to create and manage an independent Mojkit instance.
  *
- * This class provides a lightweight wrapper around the core Wave infrastructure
+ * This class provides a lightweight wrapper around the core Mojkit infrastructure
  * (Config, Bus, registerListeners) to enable multiple isolated instances for testing.
  * Each instance maintains its own configuration and bus connection while reusing
  * the production code paths.
  */
-class WaveInstance {
+class MojkitInstance {
   private name: string;
-  private config: WaveConfig;
+  private config: MojkitConfig;
 
-  constructor(name: string, config: WaveConfig) {
+  constructor(name: string, config: MojkitConfig) {
     this.name = name;
     this.config = config;
   }
 
   /**
-   * Initialize this Wave instance by:
+   * Initialize this Mojkit instance by:
    * 1. Loading the provided configuration
    * 2. Connecting to RabbitMQ
    * 3. Registering all command/query/event listeners
    *
-   * This follows the same initialization flow as the main Wave class.
+   * This follows the same initialization flow as the main Mojkit class.
    */
   async initialize(): Promise<void> {
     // Load configuration (using the provided config directly)
@@ -95,8 +95,8 @@ class WaveInstance {
 let rabbitmqAvailable = false;
 
 describe("Cross-instance E2E Tests", () => {
-  let instanceA: WaveInstance | null = null;
-  let instanceB: WaveInstance | null = null;
+  let instanceA: MojkitInstance | null = null;
+  let instanceB: MojkitInstance | null = null;
 
   beforeAll(async () => {
     // Test RabbitMQ connectivity
@@ -143,7 +143,7 @@ describe("Cross-instance E2E Tests", () => {
         return;
       }
 
-      const configA: WaveConfig = {
+      const configA: MojkitConfig = {
         domains: {
           "NamespaceA": {
             commands: {
@@ -156,15 +156,15 @@ describe("Cross-instance E2E Tests", () => {
         messageBus: {},
       };
 
-      const configB: WaveConfig = {
+      const configB: MojkitConfig = {
         domains: {},
         messageBus: {},
       };
 
-      instanceA = new WaveInstance("InstanceA", configA);
+      instanceA = new MojkitInstance("InstanceA", configA);
       await instanceA.initialize();
 
-      instanceB = new WaveInstance("InstanceB", configB);
+      instanceB = new MojkitInstance("InstanceB", configB);
       await instanceB.initialize();
 
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -188,7 +188,7 @@ describe("Cross-instance E2E Tests", () => {
         return;
       }
 
-      const configA: WaveConfig = {
+      const configA: MojkitConfig = {
         domains: {
           "NamespaceA": {
             commands: {
@@ -207,15 +207,15 @@ describe("Cross-instance E2E Tests", () => {
         messageBus: {},
       };
 
-      const configB: WaveConfig = {
+      const configB: MojkitConfig = {
         domains: {},
         messageBus: {},
       };
 
-      instanceA = new WaveInstance("InstanceA", configA);
+      instanceA = new MojkitInstance("InstanceA", configA);
       await instanceA.initialize();
 
-      instanceB = new WaveInstance("InstanceB", configB);
+      instanceB = new MojkitInstance("InstanceB", configB);
       await instanceB.initialize();
 
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -245,7 +245,7 @@ describe("Cross-instance E2E Tests", () => {
         return;
       }
 
-      const configA: WaveConfig = {
+      const configA: MojkitConfig = {
         domains: {
           "NamespaceA": {
             queries: {
@@ -258,15 +258,15 @@ describe("Cross-instance E2E Tests", () => {
         messageBus: {},
       };
 
-      const configB: WaveConfig = {
+      const configB: MojkitConfig = {
         domains: {},
         messageBus: {},
       };
 
-      instanceA = new WaveInstance("InstanceA", configA);
+      instanceA = new MojkitInstance("InstanceA", configA);
       await instanceA.initialize();
 
-      instanceB = new WaveInstance("InstanceB", configB);
+      instanceB = new MojkitInstance("InstanceB", configB);
       await instanceB.initialize();
 
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -295,7 +295,7 @@ describe("Cross-instance E2E Tests", () => {
         return;
       }
 
-      const configA: WaveConfig = {
+      const configA: MojkitConfig = {
         domains: {
           "NamespaceA": {
             commands: {
@@ -309,7 +309,7 @@ describe("Cross-instance E2E Tests", () => {
         messageBus: {},
       };
 
-      const configB: WaveConfig = {
+      const configB: MojkitConfig = {
         domains: {
           "NamespaceB": {
             commands: {
@@ -331,10 +331,10 @@ describe("Cross-instance E2E Tests", () => {
         messageBus: {},
       };
 
-      instanceA = new WaveInstance("InstanceA", configA);
+      instanceA = new MojkitInstance("InstanceA", configA);
       await instanceA.initialize();
 
-      instanceB = new WaveInstance("InstanceB", configB);
+      instanceB = new MojkitInstance("InstanceB", configB);
       await instanceB.initialize();
 
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -361,7 +361,7 @@ describe("Cross-instance E2E Tests", () => {
         return;
       }
 
-      const configA: WaveConfig = {
+      const configA: MojkitConfig = {
         domains: {
           "NamespaceA": {
             commands: {
@@ -374,15 +374,15 @@ describe("Cross-instance E2E Tests", () => {
         messageBus: {},
       };
 
-      const configB: WaveConfig = {
+      const configB: MojkitConfig = {
         domains: {},
         messageBus: {},
       };
 
-      instanceA = new WaveInstance("InstanceA", configA);
+      instanceA = new MojkitInstance("InstanceA", configA);
       await instanceA.initialize();
 
-      instanceB = new WaveInstance("InstanceB", configB);
+      instanceB = new MojkitInstance("InstanceB", configB);
       await instanceB.initialize();
 
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -411,7 +411,7 @@ describe("Cross-instance E2E Tests", () => {
       // Import SerializableError
       const { SerializableError } = await import("../../bus/errors");
 
-      const configA: WaveConfig = {
+      const configA: MojkitConfig = {
         domains: {
           "NamespaceA": {
             commands: {
@@ -428,15 +428,15 @@ describe("Cross-instance E2E Tests", () => {
         messageBus: {},
       };
 
-      const configB: WaveConfig = {
+      const configB: MojkitConfig = {
         domains: {},
         messageBus: {},
       };
 
-      instanceA = new WaveInstance("InstanceA", configA);
+      instanceA = new MojkitInstance("InstanceA", configA);
       await instanceA.initialize();
 
-      instanceB = new WaveInstance("InstanceB", configB);
+      instanceB = new MojkitInstance("InstanceB", configB);
       await instanceB.initialize();
 
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -468,7 +468,7 @@ describe("Cross-instance E2E Tests", () => {
         return;
       }
 
-      const configA: WaveConfig = {
+      const configA: MojkitConfig = {
         domains: {
           "UserManagement": {
             queries: {
@@ -489,15 +489,15 @@ describe("Cross-instance E2E Tests", () => {
         messageBus: {},
       };
 
-      const configB: WaveConfig = {
+      const configB: MojkitConfig = {
         domains: {},
         messageBus: {},
       };
 
-      instanceA = new WaveInstance("InstanceA", configA);
+      instanceA = new MojkitInstance("InstanceA", configA);
       await instanceA.initialize();
 
-      instanceB = new WaveInstance("InstanceB", configB);
+      instanceB = new MojkitInstance("InstanceB", configB);
       await instanceB.initialize();
 
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -525,7 +525,7 @@ describe("Cross-instance E2E Tests", () => {
         return;
       }
 
-      const configA: WaveConfig = {
+      const configA: MojkitConfig = {
         domains: {
           "UserManagement": {
             queries: {
@@ -544,15 +544,15 @@ describe("Cross-instance E2E Tests", () => {
         messageBus: {},
       };
 
-      const configB: WaveConfig = {
+      const configB: MojkitConfig = {
         domains: {},
         messageBus: {},
       };
 
-      instanceA = new WaveInstance("InstanceA", configA);
+      instanceA = new MojkitInstance("InstanceA", configA);
       await instanceA.initialize();
 
-      instanceB = new WaveInstance("InstanceB", configB);
+      instanceB = new MojkitInstance("InstanceB", configB);
       await instanceB.initialize();
 
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -597,7 +597,7 @@ describe("Cross-instance E2E Tests", () => {
         }
       }
 
-      const configA: WaveConfig = {
+      const configA: MojkitConfig = {
         domains: {
           "UserManagement": {
             queries: {
@@ -608,15 +608,15 @@ describe("Cross-instance E2E Tests", () => {
         messageBus: {},
       };
 
-      const configB: WaveConfig = {
+      const configB: MojkitConfig = {
         domains: {},
         messageBus: {},
       };
 
-      instanceA = new WaveInstance("InstanceA", configA);
+      instanceA = new MojkitInstance("InstanceA", configA);
       await instanceA.initialize();
 
-      instanceB = new WaveInstance("InstanceB", configB);
+      instanceB = new MojkitInstance("InstanceB", configB);
       await instanceB.initialize();
 
       await new Promise(resolve => setTimeout(resolve, 500));

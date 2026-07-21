@@ -1,23 +1,23 @@
 import { describe, it, expect, beforeEach, mock } from "bun:test";
 import {
-  WaveError,
+  MojkitError,
   createReject,
   type RejectContext,
-  type WaveErrorMeta,
+  type MojkitErrorMeta,
 } from "../../bus/errors";
-import type { WaveTransport } from "@mojkit/bus-rabbitmq";
+import type { MojkitTransport } from "@mojkit/bus-rabbitmq";
 
 // ============================================================================
 // Test Error Classes
 // ============================================================================
 
-class TestError extends WaveError {
+class TestError extends MojkitError {
   constructor(data: { id: string; value: number }) {
     super("TEST_ERROR", "Test error message", data);
   }
 }
 
-class TestErrorWithFrontEndData extends WaveError {
+class TestErrorWithFrontEndData extends MojkitError {
   constructor(
     data: { id: string },
     frontEndData: { message: string }
@@ -30,7 +30,7 @@ class TestErrorWithFrontEndData extends WaveError {
 // Tests
 // ============================================================================
 
-describe("WaveError", () => {
+describe("MojkitError", () => {
   it("should create an error with errorCode, message, and data", () => {
     const error = new TestError({ id: "test-1", value: 42 });
 
@@ -63,7 +63,7 @@ describe("WaveError", () => {
   });
 
   it("should support busOptions", () => {
-    class ErrorWithOptions extends WaveError {
+    class ErrorWithOptions extends MojkitError {
       constructor(data: any) {
         super("ERROR_WITH_OPTIONS", "Error with options", data, undefined, { priority: "high" });
       }
@@ -75,7 +75,7 @@ describe("WaveError", () => {
 });
 
 describe("createReject", () => {
-  let mockBus: WaveTransport;
+  let mockBus: MojkitTransport;
   let sendEventMock: ReturnType<typeof mock>;
   let context: RejectContext;
 
@@ -280,7 +280,7 @@ describe("createReject", () => {
   });
 
   it("should merge busOptions into sendEvent call", async () => {
-    class ErrorWithOptions extends WaveError {
+    class ErrorWithOptions extends MojkitError {
       constructor(data: any) {
         super("ERROR_WITH_OPTIONS", "Error with options", data, undefined, {
           priority: "high",
@@ -356,13 +356,13 @@ describe("createReject", () => {
       await reject(error);
     } catch (e) {
       didThrow = true;
-      expect(e).toBeInstanceOf(WaveError);
+      expect(e).toBeInstanceOf(MojkitError);
     }
 
     expect(didThrow).toBe(true);
   });
 
-  it("should throw WaveError instance for class-based errors", async () => {
+  it("should throw MojkitError instance for class-based errors", async () => {
     const reject = createReject(context, mockBus);
     const error = new TestError({ id: "test-1", value: 42 });
 
@@ -374,7 +374,7 @@ describe("createReject", () => {
     }
   });
 
-  it("should wrap and throw plain object errors as WaveError", async () => {
+  it("should wrap and throw plain object errors as MojkitError", async () => {
     const reject = createReject(context, mockBus);
 
     try {
@@ -384,9 +384,9 @@ describe("createReject", () => {
         data: { id: "test-1" },
       });
     } catch (e) {
-      expect(e).toBeInstanceOf(WaveError);
-      expect((e as WaveError).errorCode).toBe("PLAIN_ERROR");
-      expect((e as WaveError).message).toBe("Plain error message");
+      expect(e).toBeInstanceOf(MojkitError);
+      expect((e as MojkitError).errorCode).toBe("PLAIN_ERROR");
+      expect((e as MojkitError).message).toBe("Plain error message");
     }
   });
 

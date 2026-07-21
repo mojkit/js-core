@@ -6,14 +6,14 @@
  */
 
 import { randomUUID } from 'crypto';
-import type { WaveTransport } from '@mojkit/bus-rabbitmq';
+import type { MojkitTransport } from '@mojkit/bus-rabbitmq';
 import type {
   PublishableEvent,
-  WaveEventMeta,
-  WaveEvent,
-  PlainWaveEvent,
-} from './WaveEvent';
-import { isWaveEventInstance, isPlainWaveEvent } from './WaveEvent';
+  MojkitEventMeta,
+  MojkitEvent,
+  PlainMojkitEvent,
+} from './MojkitEvent';
+import { isMojkitEventInstance, isPlainMojkitEvent } from './MojkitEvent';
 
 /**
  * Context information bound to a publishEvent function.
@@ -62,7 +62,7 @@ export type PublishEventFunction = (event: PublishableEvent) => Promise<void>;
  * If an RPCContext is provided, matching events are also sent to the reply queue.
  *
  * @param context - Handler context (namespace, correlationId, etc.)
- * @param bus - Wave transport instance for sending events
+ * @param bus - Mojkit transport instance for sending events
  * @param rpcContext - Optional RPC context for reply queue routing
  * @returns A bound publishEvent function
  *
@@ -83,7 +83,7 @@ export type PublishEventFunction = (event: PublishableEvent) => Promise<void>;
  */
 export function createPublishEvent(
   context: PublishEventContext,
-  bus: WaveTransport,
+  bus: MojkitTransport,
   rpcContext?: RPCContext
 ): PublishEventFunction {
   return async (event: PublishableEvent): Promise<void> => {
@@ -93,13 +93,13 @@ export function createPublishEvent(
     let frontEndData: unknown | undefined;
     let busOptions: Record<string, any> | undefined;
 
-    if (isWaveEventInstance(event)) {
+    if (isMojkitEventInstance(event)) {
       // Class-based event
       eventName = event.eventName;
       payload = event.payload;
       frontEndData = event.frontEndData;
       busOptions = event.busOptions;
-    } else if (isPlainWaveEvent(event)) {
+    } else if (isPlainMojkitEvent(event)) {
       // Plain object event
       eventName = event.name;
       payload = event.data;
@@ -107,12 +107,12 @@ export function createPublishEvent(
       busOptions = event.busOptions;
     } else {
       throw new Error(
-        'Invalid event format. Event must be a WaveEvent instance or a plain object with "name" and "data" fields.'
+        'Invalid event format. Event must be a MojkitEvent instance or a plain object with "name" and "data" fields.'
       );
     }
 
     // Create metadata
-    const meta: WaveEventMeta = {
+    const meta: MojkitEventMeta = {
       namespace: context.namespace,
       correlationId: context.correlationId,
       handlerType: context.handlerType,
@@ -121,10 +121,10 @@ export function createPublishEvent(
     };
 
     // Attach metadata to the event (for read-only access)
-    if (isWaveEventInstance(event)) {
+    if (isMojkitEventInstance(event)) {
       event._meta = meta;
     } else {
-      (event as PlainWaveEvent)._meta = meta;
+      (event as PlainMojkitEvent)._meta = meta;
     }
 
     // Prepare the payload with metadata

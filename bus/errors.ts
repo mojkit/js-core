@@ -1,10 +1,10 @@
 /**
  * Base class for serializable domain errors.
- * 
+ *
  * Domain errors that extend this class will be automatically transformed
  * into a wire-compatible format by the bus listener layer before being
  * sent across service boundaries.
- * 
+ *
  * @example
  * ```typescript
  * class ValidationError extends SerializableError {
@@ -28,7 +28,7 @@ export class SerializableError extends Error {
     this.name = this.constructor.name;
     this.code = code;
     this.context = context;
-    
+
     // Maintains proper stack trace for where our error was thrown (only available on V8)
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor);
@@ -57,7 +57,7 @@ export class SerializableError extends Error {
 
 /**
  * Error thrown when a remote service returns an error response.
- * 
+ *
  * This error is reconstructed on the client side when receiving
  * an error response from an RPC call.
  */
@@ -87,6 +87,6 @@ export class RemoteServiceError extends Error {
   }
 }
 
-// Re-export WaveError types
-export * from './errors/WaveError';
+// Re-export MojkitError types
+export * from './errors/MojkitError';
 export * from './errors/createReject';

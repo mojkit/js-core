@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, mock } from "bun:test";
-import { WaveError } from "../../bus/errors";
+import { MojkitError } from "../../bus/errors";
 import { ListenerRegistrar } from "../../bus/handlers/ListenerRegistrar";
-import type { ResolvedWaveConfig } from "../../config/types";
+import type { ResolvedMojkitConfig } from "../../config/types";
 import type { HandlerContext } from "../../bus/types";
 
 /**
@@ -9,7 +9,7 @@ import type { HandlerContext } from "../../bus/types";
  * with the ListenerRegistrar and handler invocation.
  */
 
-class TestInsufficientInventoryError extends WaveError {
+class TestInsufficientInventoryError extends MojkitError {
   constructor(data: { orderId: string; requestedQty: number; availableQty: number }) {
     super("INSUFFICIENT_INVENTORY", "Not enough inventory", data);
   }
@@ -50,7 +50,7 @@ describe("reject integration", () => {
     const mockAppDispatcher = {} as any;
 
     // Create config
-    const config: ResolvedWaveConfig = {
+    const config: ResolvedMojkitConfig = {
       domains: {
         "Test.Domain": {
           commands: {
@@ -126,7 +126,7 @@ describe("reject integration", () => {
 
     const mockAppDispatcher = {} as any;
 
-    const config: ResolvedWaveConfig = {
+    const config: ResolvedMojkitConfig = {
       domains: {
         "Order.Management": {
           commands: {
@@ -197,7 +197,7 @@ describe("reject integration", () => {
 
     const mockAppDispatcher = {} as any;
 
-    const config: ResolvedWaveConfig = {
+    const config: ResolvedMojkitConfig = {
       domains: {
         "Inventory.Management": {
           sagas: {
@@ -266,7 +266,7 @@ describe("reject integration", () => {
 
     const mockAppDispatcher = {} as any;
 
-    const config: ResolvedWaveConfig = {
+    const config: ResolvedMojkitConfig = {
       domains: {
         "Order.Management": {
           commands: {
@@ -333,7 +333,7 @@ describe("reject integration", () => {
 
     const mockAppDispatcher = {} as any;
 
-    const config: ResolvedWaveConfig = {
+    const config: ResolvedMojkitConfig = {
       domains: {
         "Payment.Gateway": {
           commands: {

@@ -1,7 +1,7 @@
 import MyAggregate from "./domains/MyContext/MyAggregate";
-import type { WaveConfig } from "../config/types.ts";
+import type { MojkitConfig } from "../config/types.ts";
 
-export default async function config(): Promise<WaveConfig> {
+export default async function config(): Promise<MojkitConfig> {
   return {
     domains: {
       "MyContext.MyAggregate": MyAggregate,

@@ -1,12 +1,12 @@
 import createBus from "@mojkit/bus-rabbitmq";
-import type { WaveTransport } from "@mojkit/bus-rabbitmq";
+import type { MojkitTransport } from "@mojkit/bus-rabbitmq";
 import type { MessageBusConfig } from "../config/types.ts";
 export type { MessageBusConfig } from "../config/types.ts";
 
 export { SerializableError, RemoteServiceError } from "./errors";
 
 /**
- * Singleton Bus manager for the Wave framework.
+ * Singleton Bus manager for the Mojkit framework.
  *
  * Manages the message bus connection and provides access to the transport layer.
  * The bus is initialized once during application startup and reused throughout
@@ -14,7 +14,7 @@ export { SerializableError, RemoteServiceError } from "./errors";
  */
 export class Bus {
   private static instance: Bus | null = null;
-  private transport: WaveTransport | null = null;
+  private transport: MojkitTransport | null = null;
   private config: MessageBusConfig | null = null;
 
   private constructor() {}
@@ -65,9 +65,9 @@ export class Bus {
    * Get the transport instance.
    * Throws an error if the bus has not been initialized.
    *
-   * @returns The WaveTransport instance
+   * @returns The MojkitTransport instance
    */
-  get(): WaveTransport {
+  get(): MojkitTransport {
     if (!this.transport) {
       throw new Error(
         "Bus has not been initialized. Call Bus.getInstance().initialize() first.",

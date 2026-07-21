@@ -23,7 +23,7 @@ export class AppDispatcher {
   }
 
   /**
-   * Initializes the dispatcher with custom logic based on Wave configuration.
+   * Initializes the dispatcher with custom logic based on Mojkit configuration.
    * This should be called once during application startup.
    */
   static initialize(): void {

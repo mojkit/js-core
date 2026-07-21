@@ -1,15 +1,15 @@
 /**
- * @file WaveEvent.ts - Base class and types for Wave domain events.
+ * @file MojkitEvent.ts - Base class and types for Mojkit domain events.
  *
  * This module provides the foundation for publishing domain events from handlers.
- * Events can be either class-based (extending WaveEvent) or plain objects.
+ * Events can be either class-based (extending MojkitEvent) or plain objects.
  */
 
 /**
  * Metadata automatically populated by publishEvent.
  * This metadata tracks the origin and context of the event.
  */
-export interface WaveEventMeta {
+export interface MojkitEventMeta {
   /** The namespace of the handler that published this event */
   namespace: string;
 
@@ -27,9 +27,9 @@ export interface WaveEventMeta {
 }
 
 /**
- * Options for creating a WaveEvent.
+ * Options for creating a MojkitEvent.
  */
-export interface WaveEventOptions {
+export interface MojkitEventOptions {
   /** Name of the event (e.g., 'OrderCreatedEvent') */
   eventName: string;
 
@@ -50,7 +50,7 @@ export interface WaveEventOptions {
  *
  * @example
  * ```typescript
- * class OrderCreatedEvent extends WaveEvent {
+ * class OrderCreatedEvent extends MojkitEvent {
  *   constructor(payload: { orderId: string; amount: number }) {
  *     super('OrderCreatedEvent', payload);
  *   }
@@ -60,7 +60,7 @@ export interface WaveEventOptions {
  * await publishEvent(new OrderCreatedEvent({ orderId: '123', amount: 100 }));
  * ```
  */
-export abstract class WaveEvent {
+export abstract class MojkitEvent {
   /** Name of the event */
   public readonly eventName: string;
 
@@ -74,7 +74,7 @@ export abstract class WaveEvent {
   public readonly busOptions?: Record<string, any>;
 
   /** Internal metadata (populated by publishEvent) */
-  public _meta?: WaveEventMeta;
+  public _meta?: MojkitEventMeta;
 
   constructor(
     eventName: string,
@@ -92,13 +92,13 @@ export abstract class WaveEvent {
    * Get the metadata populated by publishEvent.
    * Returns undefined if the event hasn't been published yet.
    */
-  getMeta(): WaveEventMeta | undefined {
+  getMeta(): MojkitEventMeta | undefined {
     return this._meta;
   }
 }
 
 /**
- * Plain object representation of a Wave event.
+ * Plain object representation of a Mojkit event.
  * Use this for simpler scenarios where class-based events are overkill.
  *
  * @example
@@ -109,7 +109,7 @@ export abstract class WaveEvent {
  * });
  * ```
  */
-export interface PlainWaveEvent {
+export interface PlainMojkitEvent {
   /** Name of the event */
   name: string;
 
@@ -123,24 +123,24 @@ export interface PlainWaveEvent {
   busOptions?: Record<string, any>;
 
   /** Internal metadata (populated by publishEvent) */
-  _meta?: WaveEventMeta;
+  _meta?: MojkitEventMeta;
 }
 
 /**
  * Union type for all publishable event formats.
  */
-export type PublishableEvent = WaveEvent | PlainWaveEvent;
+export type PublishableEvent = MojkitEvent | PlainMojkitEvent;
 
 /**
  * Type guard to check if an event is class-based.
  */
-export function isWaveEventInstance(event: PublishableEvent): event is WaveEvent {
-  return event instanceof WaveEvent;
+export function isMojkitEventInstance(event: PublishableEvent): event is MojkitEvent {
+  return event instanceof MojkitEvent;
 }
 
 /**
  * Type guard to check if an event is a plain object.
  */
-export function isPlainWaveEvent(event: PublishableEvent): event is PlainWaveEvent {
-  return !isWaveEventInstance(event) && 'name' in event && 'data' in event;
+export function isPlainMojkitEvent(event: PublishableEvent): event is PlainMojkitEvent {
+  return !isMojkitEventInstance(event) && 'name' in event && 'data' in event;
 }

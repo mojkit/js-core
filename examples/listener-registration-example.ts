@@ -1,9 +1,9 @@
 /**
- * Example demonstrating how Wave automatically registers bus listeners
+ * Example demonstrating how Mojkit automatically registers bus listeners
  * based on the domain configuration.
  */
 
-import { Wave } from "../index";
+import { Mojkit } from "../index";
 
 /**
  * Example domain configuration structure:
@@ -25,7 +25,7 @@ import { Wave } from "../index";
  *   },
  * }
  *
- * When Wave.initialize() is called, it will automatically:
+ * When Mojkit.initialize() is called, it will automatically:
  *
  * 1. Register command listeners:
  *    - User.Auth.login
@@ -41,16 +41,16 @@ import { Wave } from "../index";
  */
 
 async function main() {
-  console.log("=== Wave Listener Registration Example ===\n");
+  console.log("=== Mojkit Listener Registration Example ===\n");
 
   try {
-    // Initialize Wave - this will:
+    // Initialize Mojkit - this will:
     // 1. Load configuration from mojkit.config.ts
     // 2. Initialize the message bus
     // 3. Register all listeners based on domain configuration
-    await Wave.getInstance().initialize();
+    await Mojkit.getInstance().initialize();
 
-    console.log("\n✓ Wave initialized successfully!");
+    console.log("\n✓ Mojkit initialized successfully!");
     console.log("✓ All listeners registered and ready to receive messages");
 
     // At this point, the following listeners are active:
@@ -64,7 +64,7 @@ async function main() {
     // Keep the process running
     await new Promise(() => {});
   } catch (error) {
-    console.error("Failed to initialize Wave:", error);
+    console.error("Failed to initialize Mojkit:", error);
     process.exit(1);
   }
 }

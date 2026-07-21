@@ -2,15 +2,19 @@ import { Config } from "./config";
 import { Bus } from "./bus";
 import { registerListeners } from "./bus/listeners";
 import type { ResolvedMojkitConfig } from "./config/types";
+import { AppDispatcher } from './services/AppDispatcher'
 
 // Export configuration types
-export type { MojkitConfig, ResolvedMojkitConfig, DomainConfig } from "./config/types";
+export type { MojkitConfig, DomainConfig } from "./config/types";
 
 // Export event publishing API
 export * from "./bus/events";
 
 // Export error rejection API
 export * from "./bus/errors";
+
+// Export services
+export { app } from './services/AppDispatcher'
 
 export class Mojkit {
   private static instance: Mojkit | null = null;
@@ -25,7 +29,7 @@ export class Mojkit {
     return Mojkit.instance;
   }
 
-  static async starat() {
+  static async start() {
     try {
       const mojkit = Mojkit.getInstance();
       await mojkit.initialize();
@@ -48,6 +52,9 @@ export class Mojkit {
         ? Number(process.env.RABBITMQ_PREFETCH_COUNT)
         : undefined,
     });
+
+    // initialize the app service
+    AppDispatcher.getInstance()
 
     // Register all bus listeners based on configuration
     await registerListeners(Config.getInstance().get());

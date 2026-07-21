@@ -1,6 +1,6 @@
 # AppDispatcher Usage Guide
 
-The `AppDispatcher` class provides a singleton pattern for managing the Wave app instance and dispatcher configuration.
+The `AppDispatcher` class provides a singleton pattern for managing the Mojkit app instance and dispatcher configuration.
 
 ## Features
 

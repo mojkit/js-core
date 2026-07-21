@@ -1,15 +1,15 @@
 /**
- * @file WaveError.ts - Base class and types for Wave domain errors.
+ * @file MojkitError.ts - Base class and types for Mojkit domain errors.
  *
  * This module provides the foundation for rejecting handlers with structured errors.
- * Errors can be either class-based (extending WaveError) or plain objects.
+ * Errors can be either class-based (extending MojkitError) or plain objects.
  */
 
 /**
  * Metadata automatically populated by reject.
  * This metadata tracks the origin and context of the error.
  */
-export interface WaveErrorMeta {
+export interface MojkitErrorMeta {
   /** The namespace of the handler that rejected with this error */
   namespace: string;
 
@@ -43,7 +43,7 @@ class SerializableError extends Error {
     this.name = this.constructor.name;
     this.code = code;
     this.context = context;
-    
+
     // Maintains proper stack trace for where our error was thrown (only available on V8)
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor);
@@ -78,7 +78,7 @@ class SerializableError extends Error {
  *
  * @example
  * ```typescript
- * class InsufficientInventoryError extends WaveError {
+ * class InsufficientInventoryError extends MojkitError {
  *   constructor(data: { orderId: string; requestedQty: number; availableQty: number }) {
  *     super(
  *       'INSUFFICIENT_INVENTORY',
@@ -92,7 +92,7 @@ class SerializableError extends Error {
  * await context.reject(new InsufficientInventoryError({ orderId: '123', requestedQty: 10, availableQty: 5 }));
  * ```
  */
-export class WaveError extends SerializableError {
+export class MojkitError extends SerializableError {
   /** Business error code (e.g., 'INSUFFICIENT_INVENTORY') */
   public readonly errorCode: string;
 
@@ -106,7 +106,7 @@ export class WaveError extends SerializableError {
   public readonly busOptions?: Record<string, any>;
 
   /** Internal metadata (populated by reject) */
-  public _meta?: WaveErrorMeta;
+  public _meta?: MojkitErrorMeta;
 
   constructor(
     errorCode: string,
@@ -126,13 +126,13 @@ export class WaveError extends SerializableError {
    * Get the metadata populated by reject.
    * Returns undefined if the error hasn't been rejected yet.
    */
-  getMeta(): WaveErrorMeta | undefined {
+  getMeta(): MojkitErrorMeta | undefined {
     return this._meta;
   }
 }
 
 /**
- * Plain object representation of a Wave error.
+ * Plain object representation of a Mojkit error.
  * Use this for simpler scenarios where class-based errors are overkill.
  *
  * @example
@@ -144,7 +144,7 @@ export class WaveError extends SerializableError {
  * });
  * ```
  */
-export interface PlainWaveError {
+export interface PlainMojkitError {
   /** Business error code */
   errorCode: string;
 
@@ -161,24 +161,24 @@ export interface PlainWaveError {
   busOptions?: Record<string, any>;
 
   /** Internal metadata (populated by reject) */
-  _meta?: WaveErrorMeta;
+  _meta?: MojkitErrorMeta;
 }
 
 /**
  * Union type for all rejectable error formats.
  */
-export type RejectableError = WaveError | PlainWaveError;
+export type RejectableError = MojkitError | PlainMojkitError;
 
 /**
  * Type guard to check if an error is class-based.
  */
-export function isWaveErrorInstance(error: RejectableError): error is WaveError {
-  return error instanceof WaveError;
+export function isMojkitErrorInstance(error: RejectableError): error is MojkitError {
+  return error instanceof MojkitError;
 }
 
 /**
  * Type guard to check if an error is a plain object.
  */
-export function isPlainWaveError(error: RejectableError): error is PlainWaveError {
-  return !isWaveErrorInstance(error) && 'errorCode' in error && 'message' in error;
+export function isPlainMojkitError(error: RejectableError): error is PlainMojkitError {
+  return !isMojkitErrorInstance(error) && 'errorCode' in error && 'message' in error;
 }

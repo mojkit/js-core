@@ -1,4 +1,4 @@
-import type { ResolvedWaveConfig } from "../../config/types";
+import type { ResolvedMojkitConfig } from "../../config/types";
 import type { ExecutionContext } from "@mojkit/bus-rabbitmq";
 import { randomUUID } from "crypto";
 import { Bus } from "../index";
@@ -29,7 +29,7 @@ export class ListenerRegistrar {
   /**
    * Register all bus listeners based on the configuration.
    */
-  async registerAll(config: ResolvedWaveConfig): Promise<void> {
+  async registerAll(config: ResolvedMojkitConfig): Promise<void> {
     const bus = Bus.getInstance().get();
     const appDispatcher = AppDispatcher.getInstance();
 

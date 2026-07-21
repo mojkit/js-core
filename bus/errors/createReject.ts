@@ -6,13 +6,13 @@
  * publishing error events before throwing.
  */
 
-import type { WaveTransport } from '@mojkit/bus-rabbitmq';
+import type { MojkitTransport } from '@mojkit/bus-rabbitmq';
 import type {
   RejectableError,
-  WaveErrorMeta,
-  PlainWaveError,
-} from './WaveError';
-import { WaveError, isWaveErrorInstance, isPlainWaveError } from './WaveError';
+  MojkitErrorMeta,
+  PlainMojkitError,
+} from './MojkitError';
+import { MojkitError, isMojkitErrorInstance, isPlainMojkitError } from './MojkitError';
 
 import type { RPCContext } from '../events/createPublishEvent';
 
@@ -49,7 +49,7 @@ export type RejectFunction = (error: RejectableError) => Promise<never>;
  * 3. Throws the error
  *
  * @param context - Handler context (namespace, correlationId, etc.)
- * @param bus - Wave transport instance for sending error events
+ * @param bus - Mojkit transport instance for sending error events
  * @param rpcContext - Optional RPC context for reply queue routing
  * @returns A bound reject function
  *
@@ -71,7 +71,7 @@ export type RejectFunction = (error: RejectableError) => Promise<never>;
  */
 export function createReject(
   context: RejectContext,
-  bus: WaveTransport,
+  bus: MojkitTransport,
   rpcContext?: RPCContext
 ): RejectFunction {
   return async (error: RejectableError): Promise<never> => {
@@ -82,14 +82,14 @@ export function createReject(
     let frontEndData: unknown | undefined;
     let busOptions: Record<string, any> | undefined;
 
-    if (isWaveErrorInstance(error)) {
+    if (isMojkitErrorInstance(error)) {
       // Class-based error
       errorCode = error.errorCode;
       message = error.message;
       data = error.data;
       frontEndData = error.frontEndData;
       busOptions = error.busOptions;
-    } else if (isPlainWaveError(error)) {
+    } else if (isPlainMojkitError(error)) {
       // Plain object error
       errorCode = error.errorCode;
       message = error.message;
@@ -98,12 +98,12 @@ export function createReject(
       busOptions = error.busOptions;
     } else {
       throw new Error(
-        'Invalid error format. Error must be a WaveError instance or a plain object with "errorCode" and "message" fields.'
+        'Invalid error format. Error must be a MojkitError instance or a plain object with "errorCode" and "message" fields.'
       );
     }
 
     // Create metadata
-    const meta: WaveErrorMeta = {
+    const meta: MojkitErrorMeta = {
       namespace: context.namespace,
       correlationId: context.correlationId,
       handlerType: context.handlerType,
@@ -112,10 +112,10 @@ export function createReject(
     };
 
     // Attach metadata to the error (for read-only access)
-    if (isWaveErrorInstance(error)) {
+    if (isMojkitErrorInstance(error)) {
       error._meta = meta;
     } else {
-      (error as PlainWaveError)._meta = meta;
+      (error as PlainMojkitError)._meta = meta;
     }
 
     // Determine error event name based on handler type
@@ -162,11 +162,11 @@ export function createReject(
     }
 
     // Always throw the error after publishing
-    if (isWaveErrorInstance(error)) {
+    if (isMojkitErrorInstance(error)) {
       throw error;
     } else {
-      // Wrap plain object in WaveError for consistent error handling
-      const wrappedError = new (class extends WaveError {
+      // Wrap plain object in MojkitError for consistent error handling
+      const wrappedError = new (class extends MojkitError {
         constructor() {
           super(errorCode, message, data, frontEndData, busOptions);
           this._meta = meta;

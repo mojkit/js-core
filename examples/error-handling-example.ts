@@ -2,7 +2,7 @@
  * Example: Error Handling in RPC Pattern
  *
  * This example demonstrates how to properly handle and propagate errors
- * across service boundaries using the Wave bus.
+ * across service boundaries using the Mojkit bus.
  */
 
 import { SerializableError, RemoteServiceError } from "../bus";

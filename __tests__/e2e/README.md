@@ -1,10 +1,10 @@
 # E2E Tests for Cross-Instance Communication
 
-This directory contains end-to-end tests that verify communication between multiple Wave instances, simulating a microservices architecture.
+This directory contains end-to-end tests that verify communication between multiple Mojkit instances, simulating a microservices architecture.
 
 ## Overview
 
-These tests create **truly independent Wave instances**, each with:
+These tests create **truly independent Mojkit instances**, each with:
 - Its own RabbitMQ bus connection
 - Its own configuration
 - Its own registered command/query handlers
@@ -30,20 +30,20 @@ bun test __tests__/e2e/cross-instance.test.ts --test-name-pattern "should call c
 
 ## Test Architecture
 
-### WaveInstance Class
+### MojkitInstance Class
 
-Each test creates independent `WaveInstance` objects:
+Each test creates independent `MojkitInstance` objects:
 
 ```typescript
-class WaveInstance {
-  private bus: WaveTransport;
-  private config: WaveConfig;
+class MojkitInstance {
+  private bus: MojkitTransport;
+  private config: MojkitConfig;
   private name: string;
 
   async initialize(): Promise<void>
   async shutdown(): Promise<void>
-  getBus(): WaveTransport
-  getConfig(): WaveConfig
+  getBus(): MojkitTransport
+  getConfig(): MojkitConfig
 }
 ```
 
@@ -51,7 +51,7 @@ class WaveInstance {
 
 ```typescript
 // Instance A - provides services
-const configA: WaveConfig = {
+const configA: MojkitConfig = {
   domains: {
     "NamespaceA": {
       commands: {
@@ -64,15 +64,15 @@ const configA: WaveConfig = {
 };
 
 // Instance B - consumes services
-const configB: WaveConfig = {
+const configB: MojkitConfig = {
   domains: {}, // No local handlers
 };
 
 // Initialize both instances
-instanceA = new WaveInstance("InstanceA", configA);
+instanceA = new MojkitInstance("InstanceA", configA);
 await instanceA.initialize();
 
-instanceB = new WaveInstance("InstanceB", configB);
+instanceB = new MojkitInstance("InstanceB", configB);
 await instanceB.initialize();
 
 // Instance B calls Instance A's command via RabbitMQ

@@ -1,5 +1,5 @@
 /**
- * Example usage of the Wave configuration generator
+ * Example usage of the Mojkit configuration generator
  */
 
 import { Config } from "../config";
@@ -8,7 +8,6 @@ import { Config } from "../config";
 async function basicUsage() {
   console.log("=== Basic Usage ===");
   const config = await Config.getInstance().load();
-  console.log("Server config:", config.server);
   console.log("Service config:", config.service);
 }
 
@@ -16,16 +15,11 @@ async function basicUsage() {
 async function withParameters() {
   console.log("\n=== With Parameters ===");
   const config = await Config.getInstance().load({
-    server: {
-      host: "127.0.0.1",
-      port: 4000,
-    },
     service: {
       name: "custom-service",
       environment: "development",
     },
   });
-  console.log("Server config:", config.server);
   console.log("Service config:", config.service);
 }
 
@@ -34,19 +28,12 @@ async function withEnvVars() {
   console.log("\n=== With Environment Variables ===");
 
   // Set environment variables
-  process.env.WAVE_CONFIG_SERVER_PORT = "9000";
-  process.env.WAVE_CONFIG_SERVER_HOST = "0.0.0.0";
-  process.env.WAVE_CONFIG_SERVICE_NAME = "production-service";
-  process.env.WAVE_CONFIG_SERVICE_ENVIRONMENT = "production";
+  process.env.MOJKIT_CONFIG_SERVICE_NAME = "production-service";
+  process.env.MOJKIT_CONFIG_SERVICE_ENVIRONMENT = "production";
 
   const config = await Config.getInstance().load({
-    server: {
-      host: "localhost",
-      port: 3000,
-    },
   });
 
-  console.log("Server config:", config.server);
   console.log("Service config:", config.service);
   console.log("Note: Env vars override parameters!");
 }
@@ -56,7 +43,7 @@ async function customConfigPath() {
   console.log("\n=== Custom Config Path ===");
 
   // Set custom config path via environment variable
-  process.env.WAVE_CONFIG_PATH = "./__tests__/mojkit.config.ts";
+  process.env.MOJKIT_CONFIG_PATH = "./__tests__/mojkit.config.ts";
 
   // Reset singleton to reload from new path
   Config.reset();

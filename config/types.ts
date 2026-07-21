@@ -104,7 +104,7 @@ export interface MessageBusConfig {
  * `domains` map is mandatory so the platform can discover and bootstrap each
  * domain module at startup.
  */
-export interface WaveConfig {
+export interface MojkitConfig {
   /**
    * Registered domains keyed by module identifier.
    *
@@ -124,13 +124,13 @@ export interface WaveConfig {
 }
 
 /**
- * Resolved Wave configuration with all defaults applied.
+ * Resolved Mojkit configuration with all defaults applied.
  *
  * This is the fully-merged configuration object used at runtime after
  * combining defaults, file config, parameters, and environment variables.
- * All optional fields from WaveConfig are guaranteed to have values.
+ * All optional fields from MojkitConfig are guaranteed to have values.
  */
-export interface ResolvedWaveConfig {
+export interface ResolvedMojkitConfig {
   /**
    * Registered domains keyed by module identifier.
    *
@@ -150,9 +150,9 @@ export interface ResolvedWaveConfig {
 }
 
 /**
- * Default values for required fields in ResolvedWaveConfig.
+ * Default values for required fields in ResolvedMojkitConfig.
  */
-export const RESOLVED_DEFAULTS: Omit<ResolvedWaveConfig, "domains"> = {
+export const RESOLVED_DEFAULTS: Omit<ResolvedMojkitConfig, "domains"> = {
   service: {
     name: "mojkit-service",
     environment: "development",

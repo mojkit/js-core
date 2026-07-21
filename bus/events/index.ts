@@ -1,16 +1,16 @@
 /**
- * @file index.ts - Public API for Wave events.
+ * @file index.ts - Public API for Mojkit events.
  */
 
 export {
-  WaveEvent,
-  type WaveEventMeta,
-  type WaveEventOptions,
-  type PlainWaveEvent,
+  MojkitEvent,
+  type MojkitEventMeta,
+  type MojkitEventOptions,
+  type PlainMojkitEvent,
   type PublishableEvent,
-  isWaveEventInstance,
-  isPlainWaveEvent,
-} from './WaveEvent';
+  isMojkitEventInstance,
+  isPlainMojkitEvent,
+} from './MojkitEvent';
 
 export {
   createPublishEvent,

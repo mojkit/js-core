@@ -1,6 +1,6 @@
 /**
  * Example demonstrating how to use reject in handlers.
- * 
+ *
  * This example shows:
  * - Class-based errors (type-safe, recommended)
  * - Plain object errors (simpler, less type safety)
@@ -10,7 +10,7 @@
  * - Testing with mock reject
  */
 
-import { WaveError, type HandlerContext } from "../index";
+import { MojkitError, type HandlerContext } from "../index";
 
 // ============================================================================
 // 1. Define Class-Based Errors (Recommended)
@@ -19,7 +19,7 @@ import { WaveError, type HandlerContext } from "../index";
 /**
  * Type-safe error for insufficient inventory.
  */
-class InsufficientInventoryError extends WaveError {
+class InsufficientInventoryError extends MojkitError {
   constructor(data: { orderId: string; requestedQty: number; availableQty: number }) {
     super(
       'INSUFFICIENT_INVENTORY',
@@ -32,7 +32,7 @@ class InsufficientInventoryError extends WaveError {
 /**
  * Type-safe error for payment declined.
  */
-class PaymentDeclinedError extends WaveError {
+class PaymentDeclinedError extends MojkitError {
   constructor(data: { orderId: string; reason: string; transactionId?: string }) {
     super(
       'PAYMENT_DECLINED',
@@ -45,7 +45,7 @@ class PaymentDeclinedError extends WaveError {
 /**
  * Type-safe error for validation failures.
  */
-class ValidationError extends WaveError {
+class ValidationError extends MojkitError {
   constructor(
     data: { field: string; value: any; constraint: string },
     frontEndData?: { showToUser: boolean; userMessage: string }
@@ -64,7 +64,7 @@ class ValidationError extends WaveError {
 // ============================================================================
 
 /**
- * Factory function that returns a WaveError instance.
+ * Factory function that returns a MojkitError instance.
  * This pattern is convenient for common errors.
  */
 const INSUFFICIENT_INVENTORY = (data: { orderId: string; requestedQty: number; availableQty: number }) =>
@@ -420,7 +420,7 @@ export const exampleConfig = {
 
 /**
  * When reject is called in placeOrderCommand, it publishes:
- * 
+ *
  * Event name: "placeOrderErrorEvent"
  * Namespace: "Order.Management"
  * Payload: {
@@ -449,7 +449,7 @@ export const exampleConfig = {
  * BEST PRACTICES:
  *
  * 1. Use class-based errors for type safety
- *    - Extend WaveError
+ *    - Extend MojkitError
  *    - Define typed data in constructor
  *    - IDE autocomplete and compile-time checks
  *

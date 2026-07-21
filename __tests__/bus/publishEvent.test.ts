@@ -1,23 +1,23 @@
 import { describe, it, expect, beforeEach, mock } from "bun:test";
 import {
-  WaveEvent,
+  MojkitEvent,
   createPublishEvent,
   type PublishEventContext,
-  type WaveEventMeta,
+  type MojkitEventMeta,
 } from "../../bus/events";
-import type { WaveTransport } from "@mojkit/bus-rabbitmq";
+import type { MojkitTransport } from "@mojkit/bus-rabbitmq";
 
 // ============================================================================
 // Test Event Classes
 // ============================================================================
 
-class TestEvent extends WaveEvent {
+class TestEvent extends MojkitEvent {
   constructor(payload: { id: string; value: number }) {
     super("TestEvent", payload);
   }
 }
 
-class TestEventWithFrontEndData extends WaveEvent {
+class TestEventWithFrontEndData extends MojkitEvent {
   constructor(
     payload: { id: string },
     frontEndData: { message: string }
@@ -30,7 +30,7 @@ class TestEventWithFrontEndData extends WaveEvent {
 // Tests
 // ============================================================================
 
-describe("WaveEvent", () => {
+describe("MojkitEvent", () => {
   it("should create an event with eventName and payload", () => {
     const event = new TestEvent({ id: "test-1", value: 42 });
 
@@ -55,7 +55,7 @@ describe("WaveEvent", () => {
   });
 
   it("should support busOptions", () => {
-    class EventWithOptions extends WaveEvent {
+    class EventWithOptions extends MojkitEvent {
       constructor(payload: any) {
         super("EventWithOptions", payload, undefined, { priority: "high" });
       }
@@ -67,7 +67,7 @@ describe("WaveEvent", () => {
 });
 
 describe("createPublishEvent", () => {
-  let mockBus: WaveTransport;
+  let mockBus: MojkitTransport;
   let sendEventMock: ReturnType<typeof mock>;
   let context: PublishEventContext;
 
@@ -243,7 +243,7 @@ describe("createPublishEvent", () => {
   });
 
   it("should merge busOptions into sendEvent call", async () => {
-    class EventWithOptions extends WaveEvent {
+    class EventWithOptions extends MojkitEvent {
       constructor(payload: any) {
         super("EventWithOptions", payload, undefined, {
           priority: "high",

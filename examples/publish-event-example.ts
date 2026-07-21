@@ -1,6 +1,6 @@
 /**
  * Example demonstrating how to use publishEvent in handlers.
- * 
+ *
  * This example shows:
  * - Class-based events (type-safe, recommended)
  * - Plain object events (simpler, less type safety)
@@ -8,7 +8,7 @@
  * - Accessing _meta after publishing
  */
 
-import { WaveEvent, type HandlerContext } from "../index";
+import { MojkitEvent, type HandlerContext } from "../index";
 
 // ============================================================================
 // 1. Define Class-Based Events (Recommended)
@@ -17,7 +17,7 @@ import { WaveEvent, type HandlerContext } from "../index";
 /**
  * Type-safe event for order creation.
  */
-class OrderCreatedEvent extends WaveEvent {
+class OrderCreatedEvent extends MojkitEvent {
   constructor(payload: { orderId: string; amount: number; customerId: string }) {
     super('OrderCreatedEvent', payload);
   }
@@ -26,7 +26,7 @@ class OrderCreatedEvent extends WaveEvent {
 /**
  * Type-safe event for inventory reservation.
  */
-class InventoryReservedEvent extends WaveEvent {
+class InventoryReservedEvent extends MojkitEvent {
   constructor(payload: { orderId: string; items: Array<{ sku: string; quantity: number }> }) {
     super('InventoryReservedEvent', payload);
   }
@@ -35,7 +35,7 @@ class InventoryReservedEvent extends WaveEvent {
 /**
  * Type-safe event for payment processing.
  */
-class PaymentProcessedEvent extends WaveEvent {
+class PaymentProcessedEvent extends MojkitEvent {
   constructor(
     payload: { orderId: string; amount: number; transactionId: string },
     frontEndData?: { showNotification: boolean; message: string }
@@ -281,7 +281,7 @@ export const exampleConfig = {
  * BEST PRACTICES:
  *
  * 1. Use class-based events for type safety
- *    - Extend WaveEvent
+ *    - Extend MojkitEvent
  *    - Define typed payload in constructor
  *    - IDE autocomplete and compile-time checks
  *

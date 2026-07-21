@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, mock } from "bun:test";
-import { WaveEvent } from "../../bus/events";
+import { MojkitEvent } from "../../bus/events";
 import { ListenerRegistrar } from "../../bus/handlers/ListenerRegistrar";
-import type { ResolvedWaveConfig } from "../../config/types";
+import type { ResolvedMojkitConfig } from "../../config/types";
 import type { HandlerContext } from "../../bus/types";
 
 /**
@@ -9,7 +9,7 @@ import type { HandlerContext } from "../../bus/types";
  * with the ListenerRegistrar and handler invocation.
  */
 
-class TestOrderCreatedEvent extends WaveEvent {
+class TestOrderCreatedEvent extends MojkitEvent {
   constructor(payload: { orderId: string; amount: number }) {
     super("OrderCreatedEvent", payload);
   }
@@ -49,7 +49,7 @@ describe("publishEvent integration", () => {
     const mockAppDispatcher = {} as any;
 
     // Create config
-    const config: ResolvedWaveConfig = {
+    const config: ResolvedMojkitConfig = {
       domains: {
         "Test.Domain": {
           commands: {
@@ -119,7 +119,7 @@ describe("publishEvent integration", () => {
 
     const mockAppDispatcher = {} as any;
 
-    const config: ResolvedWaveConfig = {
+    const config: ResolvedMojkitConfig = {
       domains: {
         "Order.Management": {
           commands: {
@@ -182,7 +182,7 @@ describe("publishEvent integration", () => {
 
     const mockAppDispatcher = {} as any;
 
-    const config: ResolvedWaveConfig = {
+    const config: ResolvedMojkitConfig = {
       domains: {
         "Inventory.Management": {
           sagas: {
@@ -243,7 +243,7 @@ describe("publishEvent integration", () => {
 
     const mockAppDispatcher = {} as any;
 
-    const config: ResolvedWaveConfig = {
+    const config: ResolvedMojkitConfig = {
       domains: {
         "Order.Management": {
           commands: {

@@ -1,4 +1,4 @@
-import type { ResolvedWaveConfig, WaveConfig } from "./types";
+import type { ResolvedMojkitConfig, MojkitConfig } from "./types";
 import { RESOLVED_DEFAULTS } from "./types";
 import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
@@ -39,12 +39,12 @@ function deepMerge<T extends Record<string, any>>(
 }
 
 /**
- * Parse environment variables prefixed with WAVE_CONFIG_ into nested config object.
- * Example: WAVE_CONFIG_SERVER_PORT=8080 → { server: { port: 8080 } }
+ * Parse environment variables prefixed with MOJKIT_CONFIG_ into nested config object.
+ * Example: MOJKIT_CONFIG_SERVER_PORT=8080 → { server: { port: 8080 } }
  */
-function parseEnvConfig(): Partial<WaveConfig> {
+function parseEnvConfig(): Partial<MojkitConfig> {
   const config: any = {};
-  const prefix = "WAVE_CONFIG_";
+  const prefix = "MOJKIT_CONFIG_";
 
   for (const [key, value] of Object.entries(process.env)) {
     if (!key.startsWith(prefix) || value === undefined) continue;
@@ -85,7 +85,7 @@ function parseEnvConfig(): Partial<WaveConfig> {
  * Load and execute the mojkit.config.ts or mojkit.config.js file.
  * Returns null if the file doesn't exist.
  */
-async function loadConfigFile(configPath: string): Promise<WaveConfig | null> {
+async function loadConfigFile(configPath: string): Promise<MojkitConfig | null> {
   try {
     const absolutePath = resolve(configPath);
 
@@ -101,18 +101,18 @@ async function loadConfigFile(configPath: string): Promise<WaveConfig | null> {
 
     if (typeof configFunction !== "function") {
       throw new Error(
-        `Config file must export a default function that returns a WaveConfig`,
+        `Config file must export a default function that returns a MojkitConfig`,
       );
     }
 
     const config = await configFunction();
 
     if (!config || typeof config !== "object") {
-      throw new Error(`Config function must return a valid WaveConfig object`);
+      throw new Error(`Config function must return a valid MojkitConfig object`);
     }
 
     if (!config.domains || typeof config.domains !== "object") {
-      throw new Error(`WaveConfig must have a "domains" property`);
+      throw new Error(`MojkitConfig must have a "domains" property`);
     }
 
     return config;
@@ -128,7 +128,7 @@ async function loadConfigFile(configPath: string): Promise<WaveConfig | null> {
 }
 
 /**
- * Singleton configuration manager for the Wave framework.
+ * Singleton configuration manager for the Mojkit framework.
  *
  * Loads and merges configuration from three sources with precedence:
  * env variables > parameters > config file > defaults
@@ -137,8 +137,8 @@ async function loadConfigFile(configPath: string): Promise<WaveConfig | null> {
  */
 export class Config {
   private static instance: Config | null = null;
-  private configPromise: Promise<WaveConfig | null> | null = null;
-  private resolvedConfig: ResolvedWaveConfig | null = null;
+  private configPromise: Promise<MojkitConfig | null> | null = null;
+  private resolvedConfig: ResolvedMojkitConfig | null = null;
   private loadedConfigPath: string | null = null;
 
   private constructor() {}
@@ -160,10 +160,10 @@ export class Config {
    * @param params - Optional parameters to override config file values
    * @returns Resolved configuration object
    */
-  async load(params?: Partial<WaveConfig>): Promise<ResolvedWaveConfig> {
+  async load(params?: Partial<MojkitConfig>): Promise<ResolvedMojkitConfig> {
     // Check if config path has changed
     const currentConfigPath =
-      process.env.WAVE_CONFIG_PATH ||
+      process.env.MOJKIT_CONFIG_PATH ||
       resolve(process.cwd(), "mojkit.config.ts");
 
     if (this.loadedConfigPath && this.loadedConfigPath !== currentConfigPath) {
@@ -195,7 +195,7 @@ export class Config {
    *
    * @returns The resolved configuration
    */
-  get(): ResolvedWaveConfig {
+  get(): ResolvedMojkitConfig {
     if (!this.resolvedConfig) {
       throw new Error(
         "Configuration has not been loaded. Call Config.getInstance().load() first.",
@@ -208,9 +208,9 @@ export class Config {
    * Load configuration file from disk.
    * Returns null if file doesn't exist.
    */
-  private async loadConfigFile(): Promise<WaveConfig | null> {
+  private async loadConfigFile(): Promise<MojkitConfig | null> {
     this.loadedConfigPath =
-      process.env.WAVE_CONFIG_PATH ||
+      process.env.MOJKIT_CONFIG_PATH ||
       resolve(process.cwd(), "mojkit.config.ts");
 
     return await loadConfigFile(this.loadedConfigPath);
@@ -221,9 +221,9 @@ export class Config {
    * File config is optional and may be null.
    */
   private mergeConfigs(
-    fileConfig: WaveConfig | null,
-    params?: Partial<WaveConfig>,
-  ): ResolvedWaveConfig {
+    fileConfig: MojkitConfig | null,
+    params?: Partial<MojkitConfig>,
+  ): ResolvedMojkitConfig {
     const envConfig = parseEnvConfig();
 
     // Merge: defaults < file < params < env
@@ -250,7 +250,7 @@ export class Config {
       this.resolvedConfig = merged;
     }
 
-    return merged as ResolvedWaveConfig;
+    return merged as ResolvedMojkitConfig;
   }
 
   /**

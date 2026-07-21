@@ -1,4 +1,4 @@
-# Wave Events - publishEvent API
+# Mojkit Events - publishEvent API
 
 The `publishEvent` API provides a clean, type-safe way for handlers to publish domain events without directly accessing
 the bus. It automatically populates metadata for tracing and debugging.
@@ -17,10 +17,10 @@ Every handler (command, query, saga) receives a `publishEvent` function in its c
 ### Class-Based Events (Recommended)
 
 ```typescript
-import { WaveEvent, type HandlerContext } from '@mojkit/core';
+import { MojkitEvent, type HandlerContext } from '@mojkit/core';
 
 // Define your event
-class OrderCreatedEvent extends WaveEvent {
+class OrderCreatedEvent extends MojkitEvent {
   constructor(payload: { orderId: string; amount: number }) {
     super('OrderCreatedEvent', payload);
   }
@@ -145,7 +145,7 @@ console.log(event._meta.namespace); // "Order.Management"
 Include UI-specific data that doesn't belong in the business payload:
 
 ```typescript
-class PaymentProcessedEvent extends WaveEvent {
+class PaymentProcessedEvent extends MojkitEvent {
   constructor(
     payload: { orderId: string; amount: number },
     frontEndData?: { showNotification: boolean; message: string }
@@ -167,7 +167,7 @@ await context.publishEvent(
 Pass bus-level options like priority or TTL:
 
 ```typescript
-class UrgentAlertEvent extends WaveEvent {
+class UrgentAlertEvent extends MojkitEvent {
   constructor(payload: { message: string }) {
     super('UrgentAlertEvent', payload, undefined, {
       priority: 'high',
@@ -286,14 +286,14 @@ describe('placeOrderCommand', () => {
 
 ```typescript
 // Good
-class OrderCreatedEvent extends WaveEvent {
+class OrderCreatedEvent extends MojkitEvent {
   constructor(payload: { orderId: string; customerId: string; total: number }) {
     super('OrderCreatedEvent', payload);
   }
 }
 
 // Avoid
-class OrderCreatedEvent extends WaveEvent {
+class OrderCreatedEvent extends MojkitEvent {
   constructor(payload: any) { // Too loose
     super('OrderCreatedEvent', payload);
   }
@@ -358,9 +358,9 @@ async function placeOrderCommand(payload: any) {
 
 **After:**
 ```typescript
-import { WaveEvent, type HandlerContext } from '@mojkit/core';
+import { MojkitEvent, type HandlerContext } from '@mojkit/core';
 
-class OrderCreatedEvent extends WaveEvent {
+class OrderCreatedEvent extends MojkitEvent {
   constructor(payload: { orderId: string }) {
     super('OrderCreatedEvent', payload);
   }
@@ -386,7 +386,7 @@ async function placeOrderCommand(
 
 ## API Reference
 
-### `WaveEvent` (abstract class)
+### `MojkitEvent` (abstract class)
 
 Base class for domain events.
 
@@ -401,19 +401,19 @@ constructor(
 ```
 
 **Methods:**
-- `getMeta(): WaveEventMeta | undefined` - Get metadata after publishing
+- `getMeta(): MojkitEventMeta | undefined` - Get metadata after publishing
 
-### `PlainWaveEvent` (interface)
+### `PlainMojkitEvent` (interface)
 
 Plain object event format.
 
 ```typescript
-interface PlainWaveEvent {
+interface PlainMojkitEvent {
   name: string;
   data: unknown;
   frontEndData?: unknown;
   busOptions?: Record<string, any>;
-  _meta?: WaveEventMeta;
+  _meta?: MojkitEventMeta;
 }
 ```
 
@@ -423,10 +423,10 @@ interface PlainWaveEvent {
 type PublishEventFunction = (event: PublishableEvent) => Promise<void>;
 ```
 
-### `WaveEventMeta` (interface)
+### `MojkitEventMeta` (interface)
 
 ```typescript
-interface WaveEventMeta {
+interface MojkitEventMeta {
   namespace: string;
   correlationId: string;
   handlerType: 'command' | 'saga' | 'eventListener';
@@ -440,7 +440,7 @@ interface WaveEventMeta {
 ### "Invalid event format" error
 
 Make sure your event is either:
-- A class extending `WaveEvent`, or
+- A class extending `MojkitEvent`, or
 - A plain object with `name` and `data` fields
 
 ### Metadata is undefined
