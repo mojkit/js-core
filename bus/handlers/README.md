@@ -1,6 +1,8 @@
 # Bus Handlers
 
-This directory contains modular services for handling bus listener registration and invocation.
+This directory contains the modules that register and invoke bus listeners. How to write a domain, call `app`, publish events, and handle errors is in [docs/GUIDE.md](../../docs/GUIDE.md). This page is the internal split only.
+
+`ARCHITECTURE.md` is a historical before/after note. Its line counts and the `HandlerContext` sketch there omit `publishEvent` and `reject`. Use `bus/types.ts` for the current context.
 
 ## Architecture
 
@@ -9,13 +11,14 @@ The refactored listener system follows the Single Responsibility Principle by se
 ### Core Services
 
 #### `HandlerInvoker`
-Responsible for invoking different types of handlers (function-based, class-based, or instance-based).
+Invokes a handler that is an async function, an arrow function, or a class constructor.
 
 **Key responsibilities:**
-- Extract query parameters and chained methods
-- Determine handler type (function, class, or instance)
-- Invoke handlers with appropriate arguments
-- Handle query method resolution
+- Read `message.methods` for queries (first arg is `methods[0].args[0]`; the rest go on `context.methods`)
+- Construct a class and assign `instance.app` for class constructors
+- Call `handler` for commands and sagas, or `methods[0].method` for query classes
+
+Non-functions throw `Invalid handler type: <type>`. A class instance stored in the config (`new Handler()`) hits that error. A non-async `function` declaration has a prototype in Bun and is treated as a class.
 
 #### `ErrorHandler`
 Transforms domain errors into serializable format with proper context.

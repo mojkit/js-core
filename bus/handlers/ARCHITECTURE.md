@@ -1,5 +1,11 @@
 # Architecture Diagram
 
+Historical note from the listener refactor. Line counts are from that change and are not maintained.
+
+The current `HandlerContext` is `bus/types.ts`: `busMessage`, `app`, `publishEvent`, `reject`, and optional `methods`. The sketch later in this file predates `publishEvent` and `reject`.
+
+For how registration, queries, and errors behave now, read [docs/GUIDE.md](../../docs/GUIDE.md).
+
 ## Before Refactoring
 
 ```

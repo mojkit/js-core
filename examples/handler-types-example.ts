@@ -1,10 +1,13 @@
 /**
  * Example demonstrating both function-based and class-based handlers.
  * 
- * Handlers can be implemented as either:
- * 1. Plain async functions: (message, context) => Promise<any>
- * 2. Class instances with a handler method
- * 3. Class constructors (will be instantiated automatically)
+ * Handlers that actually run:
+ * 1. Async functions or arrows: (message, context) => Promise<any>
+ * 2. Class constructors (instantiated per message; this.app is assigned)
+ *
+ * A class instance (`new Handler()` stored in the config) is rejected with
+ * `Invalid handler type: object`. A non-async `function` declaration is
+ * treated as a class because it has a prototype.
  */
 
 import type { HandlerContext } from "../bus/types";
@@ -59,15 +62,15 @@ class InvoiceCreatedSagaHandler {
 
 export default {
   commands: {
-    login: loginCommand,                    // Function
-    logout: new LogoutCommandHandler(),     // Class instance
+    login: loginCommand,                    // async function
+    logout: LogoutCommandHandler,           // class constructor, not an instance
   },
   queries: {
-    getUser: getUserQuery,                  // Function
-    getTokens: GetTokensQueryHandler,       // Class constructor
+    getUser: getUserQuery,                  // async function
+    getTokens: GetTokensQueryHandler,       // class constructor
   },
   sagas: {
-    "UserManagement.Auth.UserLoggedIn": userLoggedInSaga,           // Function
-    "Billing.Invoice.InvoiceCreated": new InvoiceCreatedSagaHandler(), // Class instance
+    "UserManagement.Auth.UserLoggedIn": userLoggedInSaga,
+    "Billing.Invoice.InvoiceCreated": InvoiceCreatedSagaHandler,
   },
 };

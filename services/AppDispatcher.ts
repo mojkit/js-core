@@ -57,10 +57,10 @@ export class AppDispatcher {
     const { namespace } = obj;
 
     // Check if namespace exists in configured domains
-    if (namespace in config.domains) {
-      // Placeholder for future implementation
-      // This block will handle local domain dispatch
-    } else {
+    // if (namespace in config.domains) {
+    //   // Placeholder for future implementation
+    //   // This block will handle local domain dispatch
+    // } else {
       // Send RabbitMQ message for external domains
       const bus = Bus.getInstance().get();
 
@@ -94,7 +94,7 @@ export class AppDispatcher {
           }
         );
       }
-    }
+    // }
   }
 
   /**

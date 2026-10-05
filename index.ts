@@ -2,7 +2,7 @@ import { Config } from "./config";
 import { Bus } from "./bus";
 import { registerListeners } from "./bus/listeners";
 import type { ResolvedMojkitConfig } from "./config/types";
-import { AppDispatcher } from './services/AppDispatcher'
+import { AppDispatcher, AppDispatcher } from './services/AppDispatcher'
 
 // Export configuration types
 export type { MojkitConfig, DomainConfig } from "./config/types";
@@ -55,6 +55,7 @@ export class Mojkit {
 
     // initialize the app service
     AppDispatcher.getInstance()
+    AppDispatcher.initialize()
 
     // Register all bus listeners based on configuration
     await registerListeners(Config.getInstance().get());

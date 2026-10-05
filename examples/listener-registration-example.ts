@@ -15,8 +15,8 @@ import { Mojkit } from "../index";
  *       logout: LogoutCommandHandler,
  *     },
  *     queries: {
- *       "User.Auth.GetUser": GetUserQueryHandler,
- *       "User.Auth.GetTokens": GetTokensQueryHandler,
+ *       getUser: GetUserQueryHandler,
+ *       getTokens: GetTokensQueryHandler,
  *     },
  *     sagas: {
  *       "UserManagement.Auth.UserLoggedIn": UserLoggedInSaga,
@@ -31,9 +31,9 @@ import { Mojkit } from "../index";
  *    - User.Auth.login
  *    - User.Auth.logout
  *
- * 2. Register query listeners:
- *    - User.Auth.GetUser (namespace: User.Auth, query: GetUser)
- *    - User.Auth.GetTokens (namespace: User.Auth, query: GetTokens)
+ * 2. Register query listeners. The key is the query name, not a dotted path:
+ *    - namespace User.Auth, query getUser
+ *    - namespace User.Auth, query getTokens
  *
  * 3. Register saga listeners (event listeners):
  *    - UserManagement.Auth.UserLoggedIn (listening domain: User.Auth)

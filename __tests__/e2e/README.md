@@ -4,11 +4,9 @@ This directory contains end-to-end tests that verify communication between multi
 
 ## Overview
 
-These tests create **truly independent Mojkit instances**, each with:
-- Its own RabbitMQ bus connection
-- Its own configuration
-- Its own registered command/query handlers
-- Its own lifecycle management
+These tests drive the production registration path (`Config.load`, `Bus.initialize`, `registerListeners`) against a real broker. The `MojkitInstance` helper in the test file is not a second OS process. `Config`, `Bus`, and `AppDispatcher` are process-wide singletons, so two instances in one test share one connection. `shutdown()` disconnects that bus and resets the singletons.
+
+Query cases that check method chains pass `payload: { methods: [...] }` to `bus.sendQuery`. That is the shape `HandlerInvoker` reads. The fluent `app` proxy sends an array instead, and `AppDispatcher` does not wrap it. See [docs/GUIDE.md](../../docs/GUIDE.md).
 
 ## Prerequisites
 
@@ -36,14 +34,10 @@ Each test creates independent `MojkitInstance` objects:
 
 ```typescript
 class MojkitInstance {
-  private bus: MojkitTransport;
-  private config: MojkitConfig;
-  private name: string;
-
-  async initialize(): Promise<void>
-  async shutdown(): Promise<void>
+  async initialize(): Promise<void>   // Config.load, Bus.initialize, registerListeners
+  async shutdown(): Promise<void>     // disconnects the shared bus and resets singletons
   getBus(): MojkitTransport
-  getConfig(): MojkitConfig
+  getApp(): AppDispatcher
 }
 ```
 

@@ -1,200 +1,96 @@
-# AppDispatcher Usage Guide
+# App dispatcher
 
-The `AppDispatcher` class provides a singleton pattern for managing the Mojkit app instance and dispatcher configuration.
+`AppDispatcher` installs the process-wide dispatcher behind the `app` proxy from `@mojkit/app-service`. `Mojkit.start()` calls `AppDispatcher.initialize()` before listeners are registered. Before that call, `app` uses app-service's default dispatcher and returns the command or query object instead of sending it to RabbitMQ.
 
-## Features
+The full contract (payload shapes, `.await()`, errors) is [docs/GUIDE.md](../docs/GUIDE.md). Fluent grammar is `app-service/README.md`.
 
-- **Singleton Pattern**: Ensures only one instance exists
-- **getApp() Method**: Provides access to the configured app instance
-- **Convenience Exports**: Multiple ways to access the app
-
-## Usage Patterns
-
-### 1. Using getInstance() and getApp()
+## Import
 
 ```typescript
-import { AppDispatcher } from "@mojkit/core/services/AppDispatcher";
-
-// Get the singleton instance
-const dispatcher = AppDispatcher.getInstance();
-
-// Get the app instance
-const app = dispatcher.getApp();
-
-// Use the app to make calls
-const result = await app.MyNamespace.myCommand({ data: "test" });
+import { app } from "@mojkit/core";
 ```
 
-### 2. Using getAppDispatcher() Helper
+The same proxy is `AppDispatcher.getInstance().getApp()` and `getAppDispatcher().getApp()` from `services/AppDispatcher.ts`. Those class exports are not on the package entry.
+
+Inside a class handler, startup assigns `this.app` to the `AppDispatcher` singleton. The proxy is `this.app.getApp()`, not `this.app` itself.
+
+## What dispatch does
+
+Every command and query is sent with `Bus.get()` to RabbitMQ. The branch that would handle a namespace registered in this process is commented out, so a local domain is not called in-process.
+
+Commands:
 
 ```typescript
-import { getAppDispatcher } from "@mojkit/core/services/AppDispatcher";
-
-// Get the app instance directly
-const app = getAppDispatcher().getApp();
-
-// Use the app
-const result = await app.MyNamespace.myCommand({ data: "test" });
-```
-
-### 3. Direct App Import (Recommended for most cases)
-
-```typescript
-import { app } from "@mojkit/core/services/AppDispatcher";
-
-// Use the app directly
-const result = await app.MyNamespace.myCommand({ data: "test" });
-```
-
-## Initialization
-
-Before using the app, you must initialize the dispatcher:
-
-```typescript
-import { AppDispatcher } from "@mojkit/core/services/AppDispatcher";
-import { Config } from "@mojkit/core/config";
-import { Bus } from "@mojkit/core/bus";
-
-// Load configuration
-await Config.getInstance().load();
-
-// Initialize bus
-await Bus.getInstance().initialize({
-  url: process.env.RABBITMQ_URL ?? "amqp://guest:guest@localhost:5672",
-});
-
-// Initialize dispatcher
-AppDispatcher.initialize();
-
-// Now you can use the app
-import { app } from "@mojkit/core/services/AppDispatcher";
-const result = await app.MyNamespace.myCommand({ data: "test" });
-```
-
-## API Reference
-
-### AppDispatcher Class
-
-#### Static Methods
-
-- `getInstance(): AppDispatcher` - Get the singleton instance
-- `initialize(): void` - Initialize the dispatcher (must be called once)
-- `reset(): void` - Reset the singleton (useful for testing)
-
-#### Instance Methods
-
-- `getApp()` - Get the configured app instance from @mojkit/app-service
-
-### Exported Functions
-
-- `getAppDispatcher(): AppDispatcher` - Convenience function to get the singleton instance
-
-### Exported Constants
-
-- `app` - The configured app instance (direct export from @mojkit/app-service)
-
-## Examples
-
-### Example 1: Basic Command Call
-
-```typescript
-import { app } from "@mojkit/core/services/AppDispatcher";
-
-async function createUser(name: string, email: string) {
-  const result = await app.UserManagement.Users.createUser({
-    name,
-    email,
-  });
-  return result;
-}
-```
-
-### Example 2: Command with Aggregate ID
-
-```typescript
-import { app } from "@mojkit/core/services/AppDispatcher";
-
-async function updateUser(userId: string, data: any) {
-  const result = await app.UserManagement.Users(userId).updateUser(data);
-  return result;
-}
-```
-
-### Example 3: Query Call
-
-```typescript
-import { app } from "@mojkit/core/services/AppDispatcher";
-
-async function getActiveUsers() {
-  const users = await app.UserManagement.Users.query
-    .listUsers()
-    .filterBy({ active: true })
-    .limit(10);
-  return users;
-}
-```
-
-### Example 4: Using getApp() in a Service Class
-
-```typescript
-import { getAppDispatcher } from "@mojkit/core/services/AppDispatcher";
-
-class UserService {
-  private app;
-
-  constructor() {
-    this.app = getAppDispatcher().getApp();
-  }
-
-  async createUser(name: string, email: string) {
-    return await this.app.UserManagement.Users.createUser({
-      name,
-      email,
-    });
-  }
-
-  async getUser(userId: string) {
-    return await this.app.UserManagement.Users(userId).query.getDetails();
-  }
-}
-```
-
-### Example 5: Testing with Reset
-
-```typescript
-import { describe, it, beforeEach } from "bun:test";
-import { AppDispatcher } from "@mojkit/core/services/AppDispatcher";
-
-describe("My Tests", () => {
-  beforeEach(() => {
-    // Reset the dispatcher before each test
-    AppDispatcher.reset();
-  });
-
-  it("should work", async () => {
-    // Your test code
-  });
+await bus.sendCommand({
+  id: obj.id,
+  kind: "command",
+  namespace: obj.namespace,
+  name: obj.name,
+  payload: obj.payload,
+  context: {
+    aggregateId: obj.options.aggregateId,
+    events: obj.options.events,
+  },
+  awaitResponse:
+    (obj.options.events?.length ?? 0) > 0 ||
+    (obj.options.listeners?.length ?? 0) > 0,
 });
 ```
 
-## Best Practices
+`awaitResponse` is false for a plain call. The promise resolves `undefined`. The handler return value is not returned to the caller.
 
-1. **Use Direct Import**: For most cases, directly importing `app` is the simplest approach
-2. **Initialize Once**: Call `AppDispatcher.initialize()` only once during application startup
-3. **Reset in Tests**: Use `AppDispatcher.reset()` in test setup to ensure clean state
-4. **Dependency Injection**: Use `getApp()` when you need to inject the app into classes
+`.await("OrderCreatedEvent")` stores those names on `options.events`, which becomes `context.events`. The transport only copies `context.awaitedEvents` and `context.messageId` onto the CloudEvent. The listener builds an RPC context only when `messageId`, `awaitedEvents`, and `replyQueue` are all present. So `.await()` does not complete when that event is published. It does set `awaitResponse`, and the caller then waits for the handler return value or thrown error.
 
-## Migration Guide
+`.on(eventName, handler)` is not invoked. Its presence only sets `awaitResponse`.
 
-If you were previously using the app directly, no changes are needed:
+Queries:
 
 ```typescript
-// Old way (still works)
-import { app } from "@mojkit/core/services/AppDispatcher";
-
-// New way (also works)
-import { getAppDispatcher } from "@mojkit/core/services/AppDispatcher";
-const app = getAppDispatcher().getApp();
+await bus.sendQuery(
+  { kind: "query", namespace, name, payload: obj.payload },
+  { timeoutMs: 5000 },
+);
 ```
 
-Both approaches are valid and will work identically.
+`RabbitMQMojkitTransport.sendQuery` does not read the second argument, so `timeoutMs` is ignored.
+
+`obj.payload` for a fluent query is an array of `{ method, args? }`. Handlers look for `payload.methods`. Those are different shapes, and nothing wraps the array. Chains that the unit of the e2e suite asserts against are sent as `{ methods: [...] }` through `bus.sendQuery`, not through `app`.
+
+## Calls that match the proxy
+
+Namespace `Order.Management` is `app.Order.Management`. A string or number call is an aggregate id. An object call is a command payload.
+
+```typescript
+await app.Order.Management.placeOrder({ sku: "WIDGET", quantity: 2 });
+
+await app.Order.Management("order-1").confirm({ by: "staff-9" });
+
+await app.Order.Management.placeOrder({ sku: "WIDGET", quantity: 2 })
+  .await("OrderCreatedEvent");
+```
+
+Query forms from app-service (the dispatcher still forwards the array as-is):
+
+```typescript
+await app.Users.query.list.filterBy({ active: true }).limit(10);
+
+await app.Users.query.getOrder("order-1").select("status");
+
+await app.Users("user-1").query.getProfile.withRelations("orders");
+```
+
+Do not write `app.Users.query.listUsers().filterBy(...)`. Calling `listUsers()` makes the query name `listUsers` and the first payload step `{ method: "", args }`. Property access (`listUsers.filterBy`) keeps the name and records `filterBy` as a step. The first invoked method accepts at most one argument.
+
+`query`, `on`, `then`, `catch`, and `finally` are reserved and cannot be command names.
+
+## Tests
+
+```typescript
+import { AppDispatcher } from "../services/AppDispatcher";
+
+beforeEach(() => {
+  AppDispatcher.reset();
+});
+```
+
+`reset()` clears the singleton and the `initialized` flag. It does not uninstall a dispatcher already passed to `setDispatcher` from a previous `initialize()` in the same process.

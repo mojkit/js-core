@@ -1,256 +1,106 @@
-# Mojkit Configuration Generator
+# Configuration
 
-A robust configuration management system for the Mojkit framework that loads and merges configuration from multiple sources with clear precedence rules.
+`Config` in `config/index.ts` loads `mojkit.config.ts` and merges it with defaults, an optional params object, and environment variables.
 
-## Features
+Behavioral contract, including startup and the variables `Mojkit.start()` actually reads: [docs/GUIDE.md](../docs/GUIDE.md). This page is only the merge.
 
-- **Multiple Configuration Sources**: Combines config from file, programmatic parameters, and environment variables
-- **Clear Precedence**: `env variables > parameters > config file > defaults`
-- **Singleton Pattern**: Config file is loaded only once during application lifecycle
-- **Type-Safe**: Full TypeScript support with `MojkitConfig` interface
-- **Deep Merging**: Nested configuration objects are merged intelligently
-- **Auto Type Conversion**: Environment variables are automatically parsed to numbers and booleans
-- **Default Values**: Sensible defaults provided for all optional configuration fields
+## Precedence
 
-## Quick Start
+Highest first:
+
+1. Environment variables prefixed with `MOJKIT_CONFIG_`
+2. The object passed to `load(params)`
+3. The config file
+4. Defaults
 
 ```typescript
-import { getConfig } from "./config/generator";
-// Load configuration
-const config = await getConfig();
+import { Config } from "./index.ts";
+
+const config = await Config.getInstance().load({
+  service: { name: "orders" },
+});
+
+config.service.name;         // env MOJKIT_CONFIG_SERVICE_NAME if set, else "orders"
+config.service.environment;  // "development" when nobody set it
 ```
 
-## Default Configuration
+There is no `getConfig()` function and no `ConfigGenerator` class.
 
-The configuration generator provides sensible defaults for all optional fields:
+## Defaults
 
 ```typescript
 {
-  service: {
-    name: "mojkit-service",
-    environment: "development",
-  },
-  messageBus: {},
+  service: { name: "mojkit-service", environment: "development" },
   domains: {},
+  messageBus: {},
 }
 ```
 
-These defaults are automatically applied when values are not specified in the config file, parameters, or environment variables.
+`load()` returns `ResolvedMojkitConfig`: `service.name` and `service.environment` are always strings. `messageBus` is always an object. `Mojkit.start()` does not read `messageBus`; the broker URL is `RABBITMQ_URL`.
 
-## Configuration Sources (Precedence Order)
+`MojkitConfig` (the file's return type) requires `domains`. `service` and `messageBus` are optional on input.
 
-### 1. Config File
+## Config file
 
-Create a `mojkit.config.ts` (or `mojkit.config.js`) file:
+Default path: `<cwd>/mojkit.config.ts`. Override with `MOJKIT_CONFIG_PATH`.
 
 ```typescript
-import type { MojkitConfig } from "./config/types";
+import type { MojkitConfig } from "./types.ts";
 
 export default async function config(): Promise<MojkitConfig> {
   return {
-    service: {
-      name: "my-service",
-      environment: "development",
-    },
+    service: { name: "orders", environment: "development" },
     domains: {
-      "User.Auth": AuthDomain,
+      "Order.Management": orderManagement,
     },
-    messageBus: {},
   };
 }
 ```
 
-**Config File Location:**
-- Default: `mojkit.config.ts` in current working directory
-- Custom: Set `MOJKIT_CONFIG_PATH` environment variable
+- A missing file is allowed. Only defaults, params, and env vars apply, and `domains` stays `{}` unless params or env supply it.
+- The default export must be a function. Otherwise: `Config file must export a default function that returns a MojkitConfig`.
+- The function must return an object with a `domains` object. Otherwise: `MojkitConfig must have a "domains" property`.
+- Other failures are wrapped as `Failed to load config from "<path>": <message>`.
+
+## Environment variables
+
+`MOJKIT_CONFIG_` is stripped. The remainder is lowercased and split on `_`. All segments but the last nest as objects.
 
 ```bash
-export MOJKIT_CONFIG_PATH=/path/to/custom/mojkit.config.ts
-```
-
-### 2. Programmatic Parameters
-
-Override config file values by passing parameters:
-
-```typescript
-const config = await getConfig({
-  service: {
-    environment: "staging",
-  },
-});
-```
-
-Parameters are **deep merged** with the config file, so you only need to specify the values you want to override.
-
-### 3. Environment Variables
-
-Environment variables prefixed with `MOJKIT_CONFIG_` automatically map to nested configuration:
-
-```bash
-# Maps to config.service.name
-export MOJKIT_CONFIG_SERVICE_NAME=production-service
-
-# Maps to config.service.environment
+export MOJKIT_CONFIG_SERVICE_NAME=orders
 export MOJKIT_CONFIG_SERVICE_ENVIRONMENT=production
 ```
 
-**Type Conversion:**
-- `"true"` / `"false"` → boolean
-- Numeric strings → number
-- Everything else → string
+Coercion: `"true"` / `"false"` become booleans, numeric strings become numbers, everything else stays a string.
 
-### 4. Default Values
+The parser is generic. `MOJKIT_CONFIG_SERVER_PORT=8080` becomes `{ server: { port: 8080 } }` even though `server` is not in `MojkitConfig` and startup does not open a port. A primitive env value replaces an object at that key, so do not set `MOJKIT_CONFIG_DOMAINS_...`.
 
-If a configuration value is not provided by any of the above sources, the default value is used automatically.
+## API
 
-## Merge Precedence
+### `Config.getInstance(): Config`
 
-Configuration sources are merged with clear precedence rules (highest to lowest):
+Returns the process singleton.
 
-1. **Environment Variables** (highest priority)
-2. **Programmatic Parameters**
-3. **Config File**
-4. **Default Values** (lowest priority)
+### `Config.reset(): void`
 
-This means environment variables will always win, followed by parameters, then config file values, and finally defaults are used for any fields not specified elsewhere.
+Drops the singleton. Call between tests, together with `Bus.reset()`, `AppDispatcher.reset()`, and `Mojkit.reset()` when those were used.
 
-### Precedence Example
+### `load(params?: Partial<MojkitConfig>): Promise<ResolvedMojkitConfig>`
 
-```typescript
-// mojkit.config.ts
-export default async function config() {
-  return {
-    service: {
-      environment: "production",
-    },
-    domains: {},
-    messageBus: {}
-  };
-}
-```
+Merges all sources. With no `params`, the result is cached and a later `load()` returns the same object. `load(params)` merges those params for that call and does not replace the cache. Changing `MOJKIT_CONFIG_PATH` drops the file cache.
+
+### `get(): ResolvedMojkitConfig`
+
+Returns the cached config. Throws `Configuration has not been loaded. Call Config.getInstance().load() first.` if `load()` has not completed without params.
+
+## Merge behavior
+
+Nested plain objects are deep-merged. Arrays and primitives from the higher-precedence source replace the previous value. `undefined` does not override.
+
+## Tests
 
 ```bash
-# Environment
-export MOJKIT_CONFIG_SERVICE_ENVIRONMENT=test
+bun test __tests__/config/config.test.ts __tests__/config/optional-config.test.ts
 ```
 
-```typescript
-// Code
-const config = await getConfig({
-  service: { environment: 'develop' },
-});
-
-console.log(config.service.environment); // test (env variable wins)
-console.log(config.service.name); // "mojkit-service" (default value used)
-```
-
-**Result:** Environment variables override everything, and defaults fill in any missing values.
-
-## Singleton Pattern
-
-The configuration generator uses the Singleton pattern to ensure the config file is loaded only once:
-
-```typescript
-import { ConfigGenerator } from "./config/generator";
-
-const instance1 = ConfigGenerator.getInstance();
-const instance2 = ConfigGenerator.getInstance();
-
-console.log(instance1 === instance2); // true
-```
-
-### Resetting the Singleton
-
-Useful for testing or when you need to reload configuration:
-
-```typescript
-ConfigGenerator.reset();
-```
-
-## API Reference
-
-### `getConfig(params?: Partial<MojkitConfig>): Promise<MojkitConfig>`
-
-Convenience function to get the merged configuration.
-
-**Parameters:**
-- `params` (optional): Partial configuration to override file values
-
-**Returns:** Promise resolving to the merged `MojkitConfig`
-
-**Example:**
-```typescript
-const config = await getConfig({
-  service: { name: 'test' },
-});
-```
-
-### `ConfigGenerator.getInstance(): ConfigGenerator`
-
-Get the singleton instance of the configuration generator.
-
-**Returns:** The singleton `ConfigGenerator` instance
-
-### `ConfigGenerator.reset(): void`
-
-Reset the singleton instance. The next call to `getInstance()` will create a new instance.
-
-**Use Case:** Testing or forcing a config reload
-
-### `ConfigGenerator.generate(params?: Partial<MojkitConfig>): Promise<MojkitConfig>`
-
-Generate the final configuration by merging all sources.
-
-**Parameters:**
-- `params` (optional): Partial configuration to override file values
-
-**Returns:** Promise resolving to the merged `MojkitConfig`
-
-## Configuration Schema
-
-See `config/types.ts` for the full `MojkitConfig` interface:
-
-```typescript
-interface MojkitConfig {
-  service?: ServiceConfig;
-  domains: Record<string, DomainConfig>;
-  messageBus: MessageBusConfig;
-}
-```
-
-## Testing
-
-The configuration generator includes comprehensive tests covering:
-
-- Singleton pattern behavior
-- Config file loading from different paths
-- Parameter merging and deep merge
-- Environment variable parsing and type conversion
-- Default value application
-- Merge precedence rules
-- Error handling
-
-Run tests:
-
-```bash
-bun test config/generator.test.ts
-```
-
-## Best Practices
-
-1. **Use environment variables for deployment-specific config** (ports, hosts, credentials)
-2. **Use config file for application structure** (domains, default values)
-3. **Rely on defaults for common development settings** (reduces boilerplate)
-4. **Use parameters for runtime overrides** (testing, dynamic configuration)
-5. **Never commit sensitive data** to config files (use env vars instead)
-6. **Reset singleton in tests** to ensure clean state between test cases
-
-## Examples
-
-See `examples/config-usage.ts` for complete usage examples including:
-
-- Basic configuration loading
-- Parameter overrides
-- Environment variable usage
-- Custom config file paths
-- Singleton behavior demonstration
+Some cases in `config.test.ts` still expect a `server.host` / `server.port` default. Those fields are not in `RESOLVED_DEFAULTS` or `MojkitConfig`. Do not add a server section to match the test; the typed contract is `service`, `domains`, and `messageBus`.

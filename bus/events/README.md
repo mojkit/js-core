@@ -3,6 +3,8 @@
 The `publishEvent` API provides a clean, type-safe way for handlers to publish domain events without directly accessing
 the bus. It automatically populates metadata for tracing and debugging.
 
+Startup, saga key format, and how this interacts with `reject` are in [docs/GUIDE.md](../../docs/GUIDE.md). Plain objects use `name` and `payload`. Events are published on the handler's domain namespace, so a saga key looks like `Order.Management.OrderCreatedEvent`.
+
 ## Overview
 
 Every handler (command, query, saga) receives a `publishEvent` function in its context. This function:
@@ -17,7 +19,8 @@ Every handler (command, query, saga) receives a `publishEvent` function in its c
 ### Class-Based Events (Recommended)
 
 ```typescript
-import { MojkitEvent, type HandlerContext } from '@mojkit/core';
+import { MojkitEvent } from "@mojkit/core";
+import type { HandlerContext } from "../../bus/types"; // this repo only; not re-exported from the package entry
 
 // Define your event
 class OrderCreatedEvent extends MojkitEvent {
@@ -390,7 +393,7 @@ interface MojkitEventMeta {
 
 Make sure your event is either:
 - A class extending `MojkitEvent`, or
-- A plain object with `name` and `data` fields
+- A plain object with `name` and `payload` fields (`data` is not accepted)
 
 ### Metadata is undefined
 
@@ -399,14 +402,13 @@ Make sure your event is either:
 ### Events not being received
 
 Check that:
-- The event name matches the saga listener configuration
-- The namespace is correct
-- The bus is properly initialized
-- Listeners are registered before publishing
+- The saga key is `<publishingNamespace>.<eventName>`, split on the last dot. The publishing namespace is the handler's domain, not a field on the event class.
+- The bus is initialized and listeners are registered before the publish
+- Query handlers currently record `handlerType: "command"` on `_meta`. Sagas record `"event"`.
 
 ### Type errors with context
 
-Make sure your handler signature includes `context: HandlerContext`:
+Make sure your handler signature includes `context: HandlerContext` (import the type from `bus/types.ts` in this repo):
 
 ```typescript
 // Correct
