@@ -8,7 +8,7 @@ Read `docs/GUIDE.md` before adding a service, a handler, a config sample, or an 
 
 ## Invariants
 
-- Start with `Mojkit.start()` from `index.ts`. Connection URL is `RABBITMQ_URL` (default `amqp://guest:guest@localhost:5672`). Prefetch is `RABBITMQ_PREFETCH_COUNT`. `config.messageBus` is not read.
+- Start with `Mojkit.start()` from `index.ts`. The RabbitMQ connection is the resolved `messageBus` (`url`, `prefetchCount`). An omitted `url` falls back to `RABBITMQ_URL`, then `amqp://guest:guest@localhost:5672`. An omitted `prefetchCount` falls back to `2`.
 - Config merge order is env (`MOJKIT_CONFIG_*`) > `Config.getInstance().load(params)` > config file > defaults. There is no `getConfig` and no `ConfigGenerator`.
 - The config file's default export must be a function returning `{ domains }`. A missing file is legal and means no domains.
 - Domain map key = bus namespace (`"Order.Management"`). Command and query keys are bare names. Saga keys are `namespace.eventName`, split on the last dot. A saga key without a dot throws at startup.

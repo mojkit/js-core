@@ -2,7 +2,7 @@ import { Config } from "./config";
 import { Bus } from "./bus";
 import { registerListeners } from "./bus/listeners";
 import type { ResolvedMojkitConfig } from "./config/types";
-import { AppDispatcher, AppDispatcher } from './services/AppDispatcher'
+import { AppDispatcher } from "./services/AppDispatcher";
 
 // Export configuration types
 export type { MojkitConfig, DomainConfig } from "./config/types";
@@ -44,21 +44,16 @@ export class Mojkit {
   }
 
   async initialize(): Promise<void> {
-    await Config.getInstance().load();
+    const config = await Config.getInstance().load();
 
-    await Bus.getInstance().initialize({
-      url: process.env.RABBITMQ_URL ?? "amqp://guest:guest@localhost:5672",
-      prefetchCount: process.env.RABBITMQ_PREFETCH_COUNT
-        ? Number(process.env.RABBITMQ_PREFETCH_COUNT)
-        : undefined,
-    });
+    await Bus.getInstance().initialize(config.messageBus);
 
     // initialize the app service
-    AppDispatcher.getInstance()
-    AppDispatcher.initialize()
+    AppDispatcher.getInstance();
+    AppDispatcher.initialize();
 
     // Register all bus listeners based on configuration
-    await registerListeners(Config.getInstance().get());
+    await registerListeners(config);
   }
 
   static reset(): void {

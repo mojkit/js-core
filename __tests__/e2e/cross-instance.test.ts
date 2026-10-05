@@ -48,11 +48,8 @@ class MojkitInstance {
     const configInstance = Config.getInstance();
     const resolvedConfig = await configInstance.load(this.config);
 
-    // Initialize bus connection
-    await Bus.getInstance().initialize({
-      url: RABBITMQ_URL,
-      prefetchCount: 2,
-    });
+    // Same connection source as Mojkit.initialize: the resolved messageBus.
+    await Bus.getInstance().initialize(resolvedConfig.messageBus);
 
     console.log(`✓ Instance ${this.name} connected to RabbitMQ`);
 

@@ -2,8 +2,17 @@ import createBus from "@mojkit/bus-rabbitmq";
 import type { MojkitTransport } from "@mojkit/bus-rabbitmq";
 import type { MessageBusConfig } from "../config/types.ts";
 export type { MessageBusConfig } from "../config/types.ts";
-
 export { SerializableError, RemoteServiceError } from "./errors";
+
+/**
+ * Drop unset connection fields so they do not override transport defaults.
+ */
+function busOptions(config: MessageBusConfig): MessageBusConfig {
+  const options: MessageBusConfig = {};
+  if (config.url !== undefined) options.url = config.url;
+  if (config.prefetchCount !== undefined) options.prefetchCount = config.prefetchCount;
+  return options;
+}
 
 /**
  * Singleton Bus manager for the Mojkit framework.
@@ -37,11 +46,13 @@ export class Bus {
    * @returns Promise that resolves when the bus is connected
    */
   async initialize(config: MessageBusConfig): Promise<void> {
+    const options = busOptions(config);
+
     if (this.transport) {
       // Already initialized, check if config changed
       if (
-        this.config?.url === config.url &&
-        this.config?.prefetchCount === config.prefetchCount
+        this.config?.url === options.url &&
+        this.config?.prefetchCount === options.prefetchCount
       ) {
         return; // Same config, no need to reinitialize
       }
@@ -49,14 +60,10 @@ export class Bus {
       await this.disconnect();
     }
 
-    this.config = config;
+    this.config = options;
 
-    // Dynamically import to avoid loading the module during tests
-    // const { default: createBus } = await import("@mojkit/bus-rabbitmq");
-    this.transport = createBus({
-      url: config.url,
-      prefetchCount: config.prefetchCount,
-    });
+    // Omitted fields stay unset so the transport can apply its own defaults.
+    this.transport = createBus(options);
 
     await this.transport.ensureConnected();
   }

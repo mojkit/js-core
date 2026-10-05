@@ -36,7 +36,7 @@ There is no `getConfig()` function and no `ConfigGenerator` class.
 }
 ```
 
-`load()` returns `ResolvedMojkitConfig`: `service.name` and `service.environment` are always strings. `messageBus` is always an object. `Mojkit.start()` does not read `messageBus`; the broker URL is `RABBITMQ_URL`.
+`load()` returns `ResolvedMojkitConfig`: `service.name` and `service.environment` are always strings. `messageBus` is always an object. `Mojkit.start()` passes that object to the RabbitMQ transport. An omitted `url` falls back to `RABBITMQ_URL`, then `amqp://guest:guest@localhost:5672`.
 
 `MojkitConfig` (the file's return type) requires `domains`. `service` and `messageBus` are optional on input.
 

@@ -41,6 +41,9 @@ export default async function config(): Promise<MojkitConfig> {
         },
       },
     },
+    messageBus: {
+      url: "amqp://guest:guest@localhost:5672",
+    },
   };
 }
 ```
@@ -51,11 +54,11 @@ import Mojkit from "@mojkit/core";
 await Mojkit.start();
 ```
 
-The broker URL is `RABBITMQ_URL` (default `amqp://guest:guest@localhost:5672`). Prefetch is `RABBITMQ_PREFETCH_COUNT`. `config.messageBus` is not used at startup.
+Startup connects with `messageBus`. When `url` is omitted, the transport uses `RABBITMQ_URL`, or `amqp://guest:guest@localhost:5672`. When `prefetchCount` is omitted, the transport uses `2`.
 
 Saga keys must be `namespace.eventName` (split on the last dot). Command and query keys are bare names under the domain namespace.
 
-## Call another domainconfig.messageBus is not used at startup.
+## Call another domain
 
 ```typescript
 import { app } from "@mojkit/core";

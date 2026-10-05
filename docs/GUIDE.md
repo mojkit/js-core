@@ -138,6 +138,10 @@ export default async function config(): Promise<MojkitConfig> {
     domains: {
       "Order.Management": OrderManagement,
     },
+    messageBus: {
+      url: "amqp://guest:guest@localhost:5672",
+      prefetchCount: 2,
+    },
   };
 }
 ```
@@ -156,12 +160,12 @@ A domain module may live in its own file and be placed under `domains`, as `exam
 | Variable | Effect |
 | --- | --- |
 | `MOJKIT_CONFIG_PATH` | Absolute or cwd-relative path to the config file. Default: `<cwd>/mojkit.config.ts`. |
-| `RABBITMQ_URL` | Broker URL. Default: `amqp://guest:guest@localhost:5672`. This is what `Mojkit.start()` connects with. |
-| `RABBITMQ_PREFETCH_COUNT` | Optional prefetch. Passed through `Number(...)`. |
+| `MOJKIT_CONFIG_MESSAGEBUS_URL` | Overrides `messageBus.url`. |
+| `MOJKIT_CONFIG_MESSAGEBUS_PREFETCHCOUNT` | Overrides `messageBus.prefetchCount`. Parsed as a number. |
 | `MOJKIT_CONFIG_*` | Merged on top of file and programmatic config. See section 4. |
 | `NODE_ENV=development` | Stack traces are included on the error wire format. Any other value omits them. |
 
-`config.messageBus.url` and `config.messageBus.prefetchCount` exist on the type and are **not** read by `Mojkit.start()`. Set `RABBITMQ_URL` and `RABBITMQ_PREFETCH_COUNT`.
+`Mojkit.start()` connects with the resolved `messageBus`. Set `messageBus.url` and `messageBus.prefetchCount` in the config file, or override them with the variables above. When `url` is omitted, the transport uses `RABBITMQ_URL`, or `amqp://guest:guest@localhost:5672` when that variable is unset. When `prefetchCount` is omitted, the transport uses `2`.
 
 There is no `server.host` / `server.port` in `MojkitConfig`. Older notes and `config/__tests__` still mention a `server` section. Startup does not open an HTTP port.
 
@@ -274,7 +278,7 @@ There is no `getConfig()` function and no `ConfigGenerator` class. Those names a
 `Mojkit.initialize()` (called by `start()`):
 
 1. `Config.getInstance().load()` with no overrides.
-2. `Bus.getInstance().initialize({ url, prefetchCount })` from `RABBITMQ_URL` and `RABBITMQ_PREFETCH_COUNT`.
+2. `Bus.getInstance().initialize(config.messageBus)`. Omitted `url` and `prefetchCount` are left unset so the transport can apply its defaults.
 3. `AppDispatcher.initialize()`, which installs the process-wide dispatcher used by `app`.
 4. `registerListeners(config)`, which subscribes every command, query, and saga.
 
@@ -864,7 +868,7 @@ await Mojkit.start();
 Run, with the broker up:
 
 ```bash
-export RABBITMQ_URL=amqp://guest:guest@localhost:5672
+export MOJKIT_CONFIG_MESSAGEBUS_URL=amqp://guest:guest@localhost:5672
 bun src/main.ts
 ```
 
@@ -898,20 +902,19 @@ E2E tests in `__tests__/e2e/cross-instance.test.ts` construct a small in-process
 Do not implement a service against these, and do not "correct" this guide back toward them. They are leftovers in types, comments, or sibling packages.
 
 1. `getConfig` and `ConfigGenerator` are gone. Use `Config.getInstance().load()`.
-2. `Mojkit.start()` ignores `config.messageBus`. Connection settings are `RABBITMQ_URL` and `RABBITMQ_PREFETCH_COUNT`.
-3. There is no HTTP server in core. `MOJKIT_CONFIG_SERVER_PORT` is only what the generic env parser would produce.
-4. `app` always uses RabbitMQ. In-process dispatch is commented out.
-5. Plain `await app.Ns.command(payload)` does not return the handler result. Only `.await()` / `.on()` set `awaitResponse`.
-6. `.await(eventNames)` does not subscribe to those events. The names are stored on `context.events`, and the transport reads `context.awaitedEvents`.
-7. `.on(eventName, handler)` does not call `handler`.
-8. Fluent query payloads are arrays of `{ method, args }`. Handlers read `payload.methods`. Those shapes are not converted.
-9. The `{ timeoutMs: 5000 }` argument on `sendQuery` is not read by `RabbitMQMojkitTransport.sendQuery`.
-10. `context.reject` / `MojkitError` does not preserve `errorCode` on the RPC reply. The reply code becomes `COMMAND_HANDLER_ERROR`, `QUERY_HANDLER_ERROR`, or `SAGA_HANDLER_ERROR`. The business code is on the `<handlerName>ErrorEvent` payload.
-11. Broker failures throw `Error` with `name === "RemoteServiceError"`, not the `RemoteServiceError` class.
-12. Query `publishEvent` / `reject` metadata uses `handlerType: "command"`. Sagas use `"event"`.
-13. Register class constructors, not instances.
-14. Saga keys must contain a dot. Query keys must not be written as `namespace.queryName`; the domain key is already the namespace.
-15. `examples/listener-registration-example.ts` comments that say query keys are parsed like saga keys are wrong.
+2. There is no HTTP server in core. `MOJKIT_CONFIG_SERVER_PORT` is only what the generic env parser would produce.
+3. `app` always uses RabbitMQ. In-process dispatch is commented out.
+4. Plain `await app.Ns.command(payload)` does not return the handler result. Only `.await()` / `.on()` set `awaitResponse`.
+5. `.await(eventNames)` does not subscribe to those events. The names are stored on `context.events`, and the transport reads `context.awaitedEvents`.
+6. `.on(eventName, handler)` does not call `handler`.
+7. Fluent query payloads are arrays of `{ method, args }`. Handlers read `payload.methods`. Those shapes are not converted.
+8. The `{ timeoutMs: 5000 }` argument on `sendQuery` is not read by `RabbitMQMojkitTransport.sendQuery`.
+9. `context.reject` / `MojkitError` does not preserve `errorCode` on the RPC reply. The reply code becomes `COMMAND_HANDLER_ERROR`, `QUERY_HANDLER_ERROR`, or `SAGA_HANDLER_ERROR`. The business code is on the `<handlerName>ErrorEvent` payload.
+10. Broker failures throw `Error` with `name === "RemoteServiceError"`, not the `RemoteServiceError` class.
+11. Query `publishEvent` / `reject` metadata uses `handlerType: "command"`. Sagas use `"event"`.
+12. Register class constructors, not instances.
+13. Saga keys must contain a dot. Query keys must not be written as `namespace.queryName`; the domain key is already the namespace.
+14. `examples/listener-registration-example.ts` comments that say query keys are parsed like saga keys are wrong.
 
 ## 15. Other documents
 
